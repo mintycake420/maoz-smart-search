@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "description": "Narrow robustness gazetteer for acronyms and Latin-script fragments. It is intentionally not a concept or synonym ontology.",
+  "aliases": {
+    "AI": [
+      "בינה מלאכותית"
+    ],
+    "A.I.": [
+      "בינה מלאכותית"
+    ],
+    "HR": [
+      "משאבי אנוש"
+    ],
+    "H.R.": [
+      "משאבי אנוש"
+    ],
+    "מתנ״ס": [
+      "מרכז קהילתי"
+    ],
+    "מתנ\"ס": [
+      "מרכז קהילתי"
+    ],
+    "חל״צ": [
+      "חברה לתועלת הציבור"
+    ],
+    "חל\"צ": [
+      "חברה לתועלת הציבור"
+    ],
+    "NOVA": [
+      "נובה"
+    ]
+  },
+  "scope": {
+    "latin_case_insensitive": true,
+    "normalize_hebrew_quote_variants": true,
+    "allowed_entry_kinds": [
+      "latin_acronym",
+      "hebrew_acronym",
+      "latin_entity_alias"
+    ]
+  }
+}

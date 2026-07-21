@@ -1,0 +1,1244 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Information Security &amp; Authorisation — MAOZ Smart Search</title>
+
+<style>
+  :root {
+    --paper:   #F3F5F5;
+    --surface: #FFFFFF;
+    --ink:     #14262A;
+    --body:    #33474B;
+    --muted:   #6A7E81;
+    --rule:    #DBE3E3;
+    --rule-hi: #C3D0D1;
+    --a:       #1C5A67;
+    --b:       #8A5714;
+    --a-soft:  #E6EFF1;
+    --b-soft:  #F5ECDC;
+
+    --f-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    --f-body: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --f-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+    --page: 66rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0D1618; --surface: #142124; --ink: #E9EFEF; --body: #B7C7C9;
+      --muted: #7B8F91; --rule: #23373B; --rule-hi: #31494E;
+      --a: #77BCCA; --b: #DFAA53; --a-soft: #112E35; --b-soft: #2A2211;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0D1618; --surface: #142124; --ink: #E9EFEF; --body: #B7C7C9;
+    --muted: #7B8F91; --rule: #23373B; --rule-hi: #31494E;
+    --a: #77BCCA; --b: #DFAA53; --a-soft: #112E35; --b-soft: #2A2211;
+  }
+  :root[data-theme="light"] {
+    --paper: #F3F5F5; --surface: #FFFFFF; --ink: #14262A; --body: #33474B;
+    --muted: #6A7E81; --rule: #DBE3E3; --rule-hi: #C3D0D1;
+    --a: #1C5A67; --b: #8A5714; --a-soft: #E6EFF1; --b-soft: #F5ECDC;
+  }
+
+  * { box-sizing: border-box; }
+  h1, h2, h3, h4, p, ol, ul { margin: 0; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--body);
+    font-family: var(--f-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--page);
+    margin-inline: auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.1rem, 4vw, 2.5rem) 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.75rem, 5vw, 4.25rem);
+  }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    display: flex; flex-direction: column; gap: 1.15rem;
+    border-bottom: 1px solid var(--rule-hi);
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  .masthead h1 {
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(1.9rem, 4.4vw, 2.75rem);
+    line-height: 1.15; letter-spacing: -0.015em;
+    color: var(--ink); text-wrap: balance; max-width: 23ch;
+  }
+  .masthead h1 em { font-style: italic; color: var(--a); }
+  .standfirst { max-width: 42rem; font-size: 1.05rem; }
+
+  .thesis {
+    display: flex; gap: 0.9rem; align-items: flex-start;
+    max-width: 50rem; padding: 1.05rem 1.25rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 2px solid var(--a); font-size: 0.93rem;
+  }
+  .thesis .mark {
+    font-family: var(--f-mono); font-size: 0.68rem; letter-spacing: 0.12em;
+    color: var(--a); padding-top: 0.3rem; flex-shrink: 0;
+  }
+
+  /* ---------- generic section head ---------- */
+
+  .sec { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .sec-head { display: flex; align-items: baseline; gap: 0.85rem;
+    border-bottom: 1px solid var(--rule); padding-bottom: 0.6rem; }
+  .sec-head .n {
+    font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    color: var(--a); font-variant-numeric: tabular-nums;
+  }
+  .sec-head .t {
+    font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink);
+  }
+  .sec-head .fill { flex: 1; height: 1px; background: var(--rule); }
+
+  .sec-intro {
+    font-family: var(--f-display); font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+    line-height: 1.45; color: var(--ink); max-width: 46rem; text-wrap: pretty;
+  }
+
+  /* ---------- badges ---------- */
+
+  .badge {
+    display: inline-block; white-space: nowrap;
+    font-family: var(--f-mono); font-size: 0.58rem; line-height: 1.25;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.18rem 0.38rem; border: 1px solid var(--rule-hi);
+    vertical-align: 0.08rem;
+  }
+  .badge-poc { color: var(--a); background: var(--a-soft); border-color: var(--a); }
+  .badge-v1 { color: var(--b); background: var(--b-soft); border-color: var(--b); }
+  .badge-launch { color: var(--ink); background: transparent; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 0.55rem 1rem; align-items: center; }
+  .badge-key { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .badge-note { font-size: 0.78rem; color: var(--muted); }
+
+  /* ---------- security contract ---------- */
+
+  .contract-grid {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem;
+  }
+  .contract {
+    display: flex; flex-direction: column; gap: 0.55rem;
+    min-height: 9.3rem; padding: 1rem 1.1rem 1.1rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-top: 2px solid var(--a);
+  }
+  .contract:nth-child(even) { border-top-color: var(--b); }
+  .contract .kicker {
+    font-family: var(--f-mono); font-size: 0.63rem; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--a);
+  }
+  .contract:nth-child(even) .kicker { color: var(--b); }
+  .contract h3 {
+    color: var(--ink); font-family: var(--f-display); font-weight: 400;
+    font-size: 1.05rem; line-height: 1.35;
+  }
+  .contract p { font-size: 0.86rem; }
+
+  .scope-note {
+    padding: 0.95rem 1.1rem; border-left: 2px solid var(--b);
+    background: var(--b-soft); font-size: 0.88rem;
+  }
+  .scope-note strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- two gates ---------- */
+
+  .gate-legend {
+    display: flex; flex-wrap: wrap; gap: 1.25rem;
+    font-family: var(--f-mono); font-size: 0.72rem; color: var(--muted);
+  }
+  .gate-legend span { display: flex; align-items: center; gap: 0.42rem; }
+  .gate-legend i { display: block; width: 1.6rem; height: 2px; }
+  .key-a { background: var(--a); }
+  .key-b { background: var(--b); }
+  .key-n { border-top: 2px dashed var(--rule-hi); }
+
+  .two-gates { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .gate-card {
+    display: flex; flex-direction: column; gap: 0.85rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-top: 3px solid var(--a); padding: 1.05rem;
+  }
+  .gate-card.viewer { border-top-color: var(--b); }
+  .gate-title { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; }
+  .gate-title .id {
+    font-family: var(--f-mono); font-size: 0.62rem; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--a);
+  }
+  .viewer .gate-title .id { color: var(--b); }
+  .gate-title h3 {
+    font-family: var(--f-display); font-weight: 400; font-size: 1.18rem;
+    line-height: 1.3; color: var(--ink);
+  }
+  .mini-flow { display: flex; flex-direction: column; }
+  .mini-step {
+    position: relative; padding: 0.6rem 0.7rem 0.6rem 2rem;
+    border-top: 1px solid var(--rule); font-size: 0.82rem;
+  }
+  .mini-step::before {
+    content: attr(data-n); position: absolute; left: 0.35rem; top: 0.68rem;
+    font-family: var(--f-mono); font-size: 0.62rem; color: var(--a);
+  }
+  .viewer .mini-step::before { color: var(--b); }
+  .mini-step strong { display: block; color: var(--ink); font-size: 0.84rem; }
+  .mini-step .phase {
+    display: inline-block; margin-left: 0.45rem; vertical-align: 0.1em;
+    font-family: var(--f-mono); font-size: 0.56rem; font-weight: 400;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 0.1rem 0.32rem;
+  }
+  .mini-step .phase-v1 { color: var(--a); background: var(--a-soft); }
+  .mini-step .phase-launch { color: var(--b); background: var(--b-soft); }
+  .mini-step code { font-family: var(--f-mono); color: var(--muted); font-size: 0.78em; }
+  .gate-outcome {
+    margin-top: auto; padding: 0.75rem 0.85rem;
+    background: var(--a-soft); border-left: 2px solid var(--a);
+    color: var(--ink); font-size: 0.84rem;
+  }
+  .viewer .gate-outcome { background: var(--b-soft); border-left-color: var(--b); }
+
+  .blocked {
+    grid-column: 1 / -1; display: grid;
+    grid-template-columns: 8.5rem 1fr; gap: 1rem; align-items: start;
+    padding: 0.9rem 1rem; border: 1px dashed var(--rule-hi);
+  }
+  .blocked .label {
+    font-family: var(--f-mono); font-size: 0.63rem; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .blocked ul {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem 1.2rem; padding: 0; list-style: none;
+    font-size: 0.8rem; color: var(--muted);
+  }
+  .blocked li::before { content: "×"; color: var(--b); margin-right: 0.4rem; }
+
+  /* ---------- request flow ---------- */
+
+  .request-flow { display: flex; flex-direction: column; }
+  .request-step {
+    display: grid; grid-template-columns: 5.6rem 1.2rem 1fr; gap: 0.9rem;
+    min-height: 5.4rem;
+  }
+  .request-step .when {
+    font-family: var(--f-mono); font-size: 0.64rem; letter-spacing: 0.09em;
+    color: var(--b); text-transform: uppercase; padding-top: 0.13rem;
+  }
+  .request-step .track { position: relative; }
+  .request-step .track::before {
+    content: ""; position: absolute; top: 0.35rem; bottom: -0.35rem; left: 0.53rem;
+    border-left: 1px solid var(--b);
+  }
+  .request-step:last-child .track::before { bottom: calc(100% - 0.45rem); }
+  .request-step .dot {
+    position: absolute; top: 0.12rem; left: 0.28rem; width: 0.55rem; height: 0.55rem;
+    background: var(--paper); border: 2px solid var(--b); border-radius: 50%;
+  }
+  .request-step .detail { padding-bottom: 1rem; }
+  .request-step h4 { color: var(--ink); font-size: 0.94rem; font-weight: 600; }
+  .request-step p { font-size: 0.86rem; max-width: 49rem; }
+  .request-step .spec {
+    margin-top: 0.35rem; font-family: var(--f-mono); font-size: 0.68rem;
+    color: var(--muted); line-height: 1.5;
+  }
+
+  .fail-closed {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;
+  }
+  .fail-box {
+    padding: 0.9rem 1rem; border: 1px solid var(--rule);
+    background: var(--surface); font-size: 0.84rem;
+  }
+  .fail-box strong {
+    display: block; margin-bottom: 0.25rem; color: var(--ink);
+    font-family: var(--f-mono); font-size: 0.65rem;
+    letter-spacing: 0.11em; text-transform: uppercase;
+  }
+  .fail-box.no { border-left: 2px solid var(--b); }
+  .fail-box.yes { border-left: 2px solid var(--a); }
+
+  /* ---------- threat register ---------- */
+
+  .register-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+  .register {
+    width: 100%; min-width: 58rem; border-collapse: collapse;
+    table-layout: fixed; font-size: 0.76rem; line-height: 1.45;
+  }
+  .register caption {
+    text-align: left; padding: 0.8rem 0.9rem;
+    font-family: var(--f-mono); font-size: 0.64rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule);
+  }
+  .register col.threat { width: 17%; }
+  .register col.control { width: 35%; }
+  .register col.proof { width: 25%; }
+  .register col.owner { width: 23%; }
+  .register th, .register td { text-align: left; vertical-align: top; padding: 0.72rem 0.8rem; }
+  .register thead th {
+    background: var(--paper); border-bottom: 1px solid var(--rule-hi);
+    color: var(--ink); font-family: var(--f-mono); font-size: 0.61rem;
+    letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600;
+  }
+  .register tbody tr { border-top: 1px solid var(--rule); }
+  .register tbody td + td { border-left: 1px solid var(--rule); }
+  .register .group th {
+    padding: 0.55rem 0.8rem; background: var(--a-soft); color: var(--a);
+    font-family: var(--f-mono); font-size: 0.62rem; letter-spacing: 0.12em;
+    text-transform: uppercase; border-top: 2px solid var(--a); border-bottom: 0;
+  }
+  .register .group-b th { background: var(--b-soft); color: var(--b); border-top-color: var(--b); }
+  .register td strong { color: var(--ink); font-weight: 600; }
+  .register .cell-badge { margin-bottom: 0.35rem; }
+  .register .residual { color: var(--muted); }
+  .register .owner-line { display: block; margin-top: 0.3rem; color: var(--ink); }
+
+  /* ---------- lifecycle ---------- */
+
+  .lifecycle {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0; border: 1px solid var(--rule); background: var(--surface);
+  }
+  .life-step { position: relative; padding: 0.95rem 0.85rem 1rem; min-height: 12rem; }
+  .life-step + .life-step { border-left: 1px solid var(--rule); }
+  .life-step + .life-step::before {
+    content: ""; position: absolute; top: 1.25rem; left: -0.25rem;
+    width: 0.42rem; height: 0.42rem;
+    border-top: 1.5px solid var(--a); border-right: 1.5px solid var(--a);
+    transform: rotate(45deg); background: var(--surface);
+  }
+  .life-step:nth-child(even)::before { border-color: var(--b); }
+  .life-step .num {
+    font-family: var(--f-mono); font-size: 0.62rem; color: var(--a); letter-spacing: 0.1em;
+  }
+  .life-step:nth-child(even) .num { color: var(--b); }
+  .life-step h4 { margin: 0.25rem 0 0.4rem; color: var(--ink); font-size: 0.88rem; }
+  .life-step p { font-size: 0.76rem; line-height: 1.5; }
+
+  .law-panel {
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 0.8rem;
+  }
+  .law-main, .law-questions {
+    padding: 1.05rem 1.1rem; border: 1px solid var(--rule); background: var(--surface);
+  }
+  .law-main { border-top: 2px solid var(--a); }
+  .law-questions { border-top: 2px solid var(--b); }
+  .law-panel h3 {
+    margin-bottom: 0.55rem; color: var(--ink); font-family: var(--f-display);
+    font-weight: 400; font-size: 1.05rem;
+  }
+  .law-panel p, .law-panel li { font-size: 0.84rem; }
+  .law-panel ul { padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; }
+  .law-label {
+    display: block; margin-bottom: 0.35rem; font-family: var(--f-mono);
+    font-size: 0.61rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--b);
+  }
+
+  .roles {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.65rem;
+  }
+  .role {
+    padding: 0.85rem 0.9rem; border-top: 1px solid var(--rule-hi);
+  }
+  .role h4 { color: var(--ink); font-size: 0.84rem; }
+  .role p { font-size: 0.76rem; color: var(--muted); }
+
+  /* ---------- residual risks & assumptions ---------- */
+
+  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .risk-card {
+    padding: 1rem 1.05rem; background: var(--surface); border: 1px solid var(--rule);
+  }
+  .risk-card h3 {
+    margin-bottom: 0.65rem; color: var(--ink); font-family: var(--f-mono);
+    font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .risk-card ul { padding-left: 1.05rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .risk-card li { font-size: 0.84rem; }
+  .risk-card li::marker { color: var(--a); }
+  .risk-card:nth-child(even) li::marker { color: var(--b); }
+  .risk-card strong { color: var(--ink); font-weight: 600; }
+
+  .launch-gates { display: flex; flex-direction: column; border-top: 1px solid var(--rule); }
+  .launch-gate {
+    display: grid; grid-template-columns: 10rem 1fr; gap: 1rem;
+    padding: 0.8rem 0; border-bottom: 1px solid var(--rule);
+  }
+  .launch-gate .label {
+    font-family: var(--f-mono); font-size: 0.64rem; letter-spacing: 0.08em;
+    color: var(--b); text-transform: uppercase;
+  }
+  .launch-gate p { font-size: 0.84rem; }
+
+  /* ---------- disclosure & notes ---------- */
+
+  .disclosure {
+    display: grid; grid-template-columns: 9rem 1fr; gap: 1.2rem;
+    padding: 1.1rem 1.2rem; background: var(--surface); border: 1px solid var(--rule);
+    border-left: 2px solid var(--a);
+  }
+  .disclosure .label {
+    font-family: var(--f-mono); font-size: 0.64rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--a);
+  }
+  .disclosure p { font-size: 0.86rem; }
+  .disclosure p + p { margin-top: 0.55rem; }
+
+  .source-notes {
+    border-top: 1px solid var(--rule-hi); padding-top: 1.4rem;
+    display: flex; flex-direction: column; gap: 0.5rem; color: var(--muted);
+  }
+  .source-notes h3 {
+    color: var(--ink); font-family: var(--f-mono); font-size: 0.64rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .source-notes p { max-width: 52rem; font-size: 0.75rem; }
+  .source-notes cite { font-style: normal; color: var(--body); }
+  .source-notes a { color: var(--a); text-underline-offset: 0.16em; }
+
+  /* ---------- responsive ---------- */
+
+  @media (max-width: 52rem) {
+    .lifecycle { grid-template-columns: 1fr 1fr; }
+    .life-step { min-height: auto; }
+    .life-step + .life-step { border-left: 0; border-top: 1px solid var(--rule); }
+    .life-step + .life-step::before { display: none; }
+    .roles { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 42rem) {
+    .thesis { flex-direction: column; gap: 0.35rem; }
+    .thesis .mark { padding-top: 0; }
+    .contract-grid, .two-gates, .fail-closed, .law-panel, .risk-grid { grid-template-columns: 1fr; }
+    .blocked { grid-template-columns: 1fr; }
+    .blocked ul { grid-template-columns: 1fr; }
+    .request-step { grid-template-columns: 4.7rem 1rem 1fr; gap: 0.55rem; }
+    .request-step .track::before { left: 0.42rem; }
+    .request-step .dot { left: 0.17rem; }
+    .lifecycle, .roles { grid-template-columns: 1fr; }
+    .launch-gate, .disclosure { grid-template-columns: 1fr; gap: 0.35rem; }
+  }
+
+  /* ---------- print ---------- */
+
+  @page { size: A4; margin: 13mm 12mm 15mm; }
+
+  @media print {
+    :root,
+    :root[data-theme="dark"],
+    :root[data-theme="light"] {
+      --paper: #FFFFFF; --surface: #FFFFFF; --ink: #14262A; --body: #33474B;
+      --muted: #5D7073; --rule: #D2DCDD; --rule-hi: #B9C8CA;
+      --a: #1C5A67; --b: #8A5714; --a-soft: #E6EFF1; --b-soft: #F5ECDC;
+    }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 9pt; }
+    .wrap { max-width: none; padding: 0; gap: 1.55rem; }
+    .masthead { padding-bottom: 1.25rem; }
+    .masthead h1 { font-size: 24pt; }
+    .sec { gap: 0.9rem; }
+    .sec-intro { font-size: 12.5pt; }
+    .contract, .gate-card, .blocked, .request-step, .fail-box, .law-main,
+    .law-questions, .risk-card, .launch-gate, .disclosure, .life-step {
+      break-inside: avoid; page-break-inside: avoid;
+    }
+    .contract { min-height: 0; }
+    .register-wrap { overflow: visible; }
+    .register { min-width: 0; font-size: 7.8pt; line-height: 1.34; }
+    .register th, .register td { padding: 0.4rem 0.45rem; }
+    .register thead { display: table-header-group; }
+    .register tr { break-inside: avoid; page-break-inside: avoid; }
+    .register .badge { font-size: 5.4pt; }
+    .lifecycle { grid-template-columns: repeat(5, 1fr); }
+    .life-step { min-height: 0; padding: 0.7rem 0.55rem; }
+    .life-step + .life-step { border-left: 1px solid var(--rule); border-top: 0; }
+    .life-step + .life-step::before { display: block; }
+    .roles { grid-template-columns: repeat(4, 1fr); }
+    .risk-card { padding: 0.75rem 0.8rem; }
+    .risk-card h3 { margin-bottom: 0.4rem; }
+    .risk-card ul { gap: 0.3rem; }
+    .risk-card li { font-size: 7.8pt; line-height: 1.4; }
+    .launch-gate { padding: 0.5rem 0; }
+    .launch-gate p { font-size: 7.8pt; line-height: 1.35; }
+    .disclosure { padding: 0.75rem 0.9rem; }
+    .disclosure p { font-size: 7.8pt; line-height: 1.38; }
+    .disclosure p + p { margin-top: 0.3rem; }
+    .source-notes { break-before: auto; padding-top: 0.65rem; gap: 0.3rem; }
+    .source-notes p { font-size: 7pt; line-height: 1.35; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="eyebrow">MAOZ · Smart Search · Part A.3</span>
+    <h1>Only an approved projection becomes <em>searchable</em></h1>
+    <p class="standfirst">
+      Information security and authorisation are expressed here as two enforceable
+      gates, fifteen testable controls, and explicit reasons to stop — not as a
+      promise that encryption alone makes a people-search system safe.
+    </p>
+    <div class="thesis">
+      <span class="mark">SECURITY CONTRACT</span>
+      <p>
+        Salesforce remains the system of record and the authorisation authority.
+        Gate one decides which fields may leave it; gate two decides which rows a
+        particular viewer may rank. Both gates fail closed. The local index is a
+        sensitive, disposable derivative — including its embeddings — and never a
+        second source of permission truth.
+      </p>
+    </div>
+  </header>
+
+  <!-- =================== CONTRACT & SCOPE =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">01</span><span class="t">Contract &amp; scope</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      “Local” reduces one transfer risk. It does not make profile text, queries,
+      vectors, logs or backups non-personal — each remains inside the same trust boundary.
+    </p>
+
+    <div class="contract-grid">
+      <article class="contract">
+        <span class="kicker">Data minimisation</span>
+        <h3>Restricted fields are absent, not redacted later.</h3>
+        <p>A field-scoped Salesforce identity plus a committed allow-list prevents
+          donor status, staff assessments and personal circumstances from entering
+          the extractor. A widened permission set aborts the run rather than widening
+          the index.</p>
+        <span class="badge badge-poc">POC</span>
+      </article>
+
+      <article class="contract">
+        <span class="kicker">Purpose boundary</span>
+        <h3>Search supports a relevant introduction, not open people browsing.</h3>
+        <p>The result is a small, evidence-backed shortlist. Raw similarity scores,
+          exhaustive counts, bulk export and a vector endpoint are outside the product.
+          The workflow ends in MAOZ's existing introduction process.</p>
+        <span class="badge badge-v1">v1</span>
+      </article>
+
+      <article class="contract">
+        <span class="kicker">Local inference</span>
+        <h3>No member content crosses into a hosted model API.</h3>
+        <p>Every model runs from a locally hosted open-weight checkpoint under the
+          per-repository licences listed in Part A.2. The target design permits two —
+          an embedder and a reranker; <strong>the measured POC ships one</strong>,
+          because the cross-encoder was rejected on a measured flagship regression and
+          is not packaged. Since MAOZ confirmed the system is Hebrew, translation was
+          removed from the design, so <strong>no model in the system generates text at
+          all</strong> — every model scores or encodes. Production inference is
+          egress-restricted; model files are pinned and reviewed as software
+          dependencies.</p>
+        <span class="badge badge-poc">POC</span>
+      </article>
+
+      <article class="contract">
+        <span class="kicker">Audience</span>
+        <h3>Staff-only is the safe default, not a permanent entitlement.</h3>
+        <p>Until MAOZ confirms the intended audience, the POC is limited to named staff
+          and synthetic profiles. Member-facing access is a separate launch decision
+          requiring consent, field-visibility and record-visibility semantics.</p>
+        <span class="badge badge-launch">before member launch</span>
+      </article>
+    </div>
+
+    <div class="scope-note">
+      <strong>POC boundary.</strong> The repository and demonstration use synthetic
+      profiles. A real-data pilot begins only after MAOZ owns the field allow-list,
+      approves the purpose and retention schedule, names the operational owner, and
+      completes the applicable privacy and security assessment.
+    </div>
+  </section>
+
+  <!-- =================== TWO GATES =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">02</span><span class="t">The two enforcement gates</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Petrol controls what may exist downstream. Amber controls what this viewer may
+      retrieve now. Passing one never substitutes for passing the other.
+    </p>
+
+    <div class="gate-legend">
+      <span><i class="key-a"></i> Content gate · index time</span>
+      <span><i class="key-b"></i> Viewer gate · every request</span>
+      <span><i class="key-n"></i> Never crosses</span>
+    </div>
+
+    <div class="two-gates">
+      <article class="gate-card content">
+        <div class="gate-title">
+          <div>
+            <span class="id">Gate 01 · Petrol</span>
+            <h3>May this content enter the index?</h3>
+          </div>
+          <span class="badge badge-poc">POC</span>
+        </div>
+        <div class="mini-flow">
+          <div class="mini-step" data-n="01">
+            <strong>Salesforce field-level security</strong>
+            An API-only identity can read only the approved source fields.
+          </div>
+          <div class="mini-step" data-n="02">
+            <strong>Versioned projection manifest</strong>
+            Effective access, source metadata, and formula or derived-field
+            dependencies are compared with an explicit allow-list; drift aborts.
+          </div>
+          <div class="mini-step" data-n="03">
+            <strong>Redacted aspect documents</strong>
+            Only the minimum role, trajectory, interests and affiliation text is built.
+          </div>
+          <div class="mini-step" data-n="04">
+            <strong>Local derived store</strong>
+            Approved text, its normalised and expanded variants, and embeddings share one protected lifecycle.
+          </div>
+        </div>
+        <p class="gate-outcome"><strong>Invariant:</strong> only text whose source
+          fields and derived dependencies are approved may be materialised
+          downstream; negative dependency tests enforce this.</p>
+      </article>
+
+      <article class="gate-card viewer">
+        <div class="gate-title">
+          <div>
+            <span class="id">Gate 02 · Amber</span>
+            <h3>May this viewer rank these rows?</h3>
+          </div>
+          <span class="badge badge-v1">v1, tightening before member launch</span>
+        </div>
+        <div class="mini-flow">
+          <div class="mini-step" data-n="01">
+            <strong>Salesforce SSO <span class="phase phase-v1">v1</span></strong>
+            Authenticate the person; do not trust a client-supplied role or profile ID.
+          </div>
+          <div class="mini-step" data-n="02">
+            <strong>Current entitlement <span class="phase phase-v1">v1</span></strong>
+            Revalidate active status and the assigned search permission for this
+            request, so a departed staff member loses access on the next request.
+          </div>
+          <div class="mini-step" data-n="03">
+            <strong>Authoritative visible-record relation <span class="phase phase-launch">before member launch</span></strong>
+            Salesforce resolves which profile IDs this viewer may see now. Staff-only
+            v1 does not need per-record filtering; member-facing search cannot ship
+            without it.
+          </div>
+          <div class="mini-step" data-n="04">
+            <strong>Authorised retrieval <span class="phase phase-launch">before member launch</span></strong>
+            The relation is joined inside the same exact-retrieval statement before scoring.
+          </div>
+        </div>
+        <p class="gate-outcome"><strong>Invariant:</strong> unavailable, expired or
+          ambiguous authorisation produces an error — never an unrestricted search.</p>
+      </article>
+
+      <aside class="blocked">
+        <span class="label">Never crosses either gate</span>
+        <ul>
+          <li>restricted source fields</li>
+          <li>hosted-model calls</li>
+          <li>unauthorised profile rows</li>
+          <li>raw vector access</li>
+          <li>raw similarity scores</li>
+          <li>unbounded result export</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- =================== REQUEST AUTHORISATION =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">03</span><span class="t">Authorisation in one request</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Revocation has to beat relevance. The system proves permission before a hidden
+      candidate can affect a score, rank or result count. Timing is mitigated
+      separately and remains observable.
+    </p>
+
+    <div class="request-flow">
+      <div class="request-step">
+        <span class="when">Entry</span>
+        <span class="track"><i class="dot"></i></span>
+        <div class="detail">
+          <h4>Authenticate the viewer through Salesforce SSO</h4>
+          <p>The backend validates issuer, audience, signature, expiry and replay
+            protections, then creates a server-side request context. Browser-supplied
+            role claims never become database predicates directly.</p>
+        </div>
+      </div>
+
+      <div class="request-step">
+        <span class="when">Current truth</span>
+        <span class="track"><i class="dot"></i></span>
+        <div class="detail">
+          <h4>Resolve current entitlement and visible records in Salesforce</h4>
+          <p>Confirm the user is active and still assigned the search permission.
+            For member-facing search, Salesforce returns the authoritative set or
+            relation of visible profile IDs for this request.</p>
+          <p class="spec">timeout · invalid token · inactive user · permission removed · scope unresolved → DENY</p>
+        </div>
+      </div>
+
+      <div class="request-step">
+        <span class="when">Bind</span>
+        <span class="track"><i class="dot"></i></span>
+        <div class="detail">
+          <h4>Bind identity and allowed IDs to a transaction</h4>
+          <p>The application uses a non-bypass database role, sets the verified viewer
+            context transaction-locally, and materialises the allowed IDs as a
+            request-scoped relation. Cross-viewer connection-pool reuse tests must
+            prove that no prior viewer state survives.</p>
+        </div>
+      </div>
+
+      <div class="request-step">
+        <span class="when">Retrieve</span>
+        <span class="track"><i class="dot"></i></span>
+        <div class="detail">
+          <h4>Join authorisation inside exact retrieval, then score and rank</h4>
+          <p>Lexical and vector legs operate over the same authorised relation; only
+            then do scoring and any downstream reranking run. A hidden profile cannot
+            become a candidate and cannot be “removed later.” The shipped POC ranks on
+            the dense leg alone — the fusion stage was removed after an ablation
+            measured its contribution at zero, and the cross-encoder reranker was
+            rejected on a measured regression — but the authorisation join sits
+            upstream of all of them, so the boundary argument is unchanged by which
+            scorers are present.</p>
+          <p class="spec">visible_profile_ids ⋈ profile_aspects → exact cosine → confidence gate</p>
+        </div>
+      </div>
+
+      <div class="request-step">
+        <span class="when">Return</span>
+        <span class="track"><i class="dot"></i></span>
+        <div class="detail">
+          <h4>Present the minimum useful evidence and record the access</h4>
+          <p>Return a small shortlist using only viewer-visible fields. The security
+            audit records viewer, purpose, result IDs and policy version; general
+            telemetry excludes raw profile text and raw query content.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="fail-closed">
+      <div class="fail-box no">
+        <strong>Not claimed</strong>
+        pgvector approximate indexes apply filters after the index scan; iterative
+        scanning retries that post-filter. It is not true pre-filtering. If ANN is
+        introduced later, MAOZ must separately prove recall and authorisation behaviour.
+      </div>
+      <div class="fail-box yes">
+        <strong>Claimed here</strong>
+        The proposed scale uses exact retrieval. The allowed-record relation is joined
+        in the retrieval statement before any score or rank is computed, and the
+        transaction uses a database role that cannot bypass the policy.
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== THREAT REGISTER =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">04</span><span class="t">Threat · control · proof register</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      A control without a proof is an intention. These fifteen entries name the
+      artefact or drill that lets MAOZ verify each promise and the person who owns
+      what remains.
+    </p>
+    <p class="sec-intro">
+      <strong>Proportionality is itself a decision, and it belongs in the open.</strong>
+      Most of a member profile is not secret — name, role, organisation and sector are
+      substantially public, because these are leaders and the network exists so they can
+      be found. Sizing every control as though the text were confidential would tax a
+      tool whose whole purpose is discovery. So the weight sits deliberately on the two
+      places where sensitivity is real and <em>non-obvious</em>: the fields never
+      extracted at all (donor status, staff assessments, personal circumstances — a
+      staff member's private written assessment reaching the member it describes is
+      relationship-ending), and the sector label, which in a cross-sector Israeli
+      network can proxy for ethnic origin, religious belief or political opinion and is
+      therefore the most regulated field in the schema despite looking like the least.
+      Where a control is expensive and the staff-only risk is genuinely low, it is
+      staged rather than shipped — the enumeration row below is <em>split</em> for
+      exactly that reason: the parts that cost nothing ship in v1, and only the parts
+      that would throttle a discovery tool are staged.
+    </p>
+
+    <div class="badge-row">
+      <span class="badge-key"><span class="badge badge-poc">POC</span><span class="badge-note">required in the POC design; demonstrated only where the corresponding test artefact ships</span></span>
+      <span class="badge-key"><span class="badge badge-v1">v1</span><span class="badge-note">required for a real-data staff pilot</span></span>
+      <span class="badge-key"><span class="badge badge-launch">before member launch</span><span class="badge-note">hard gate for wider access</span></span>
+    </div>
+
+    <div class="register-wrap">
+      <table class="register">
+        <caption>Control register · proposed evidence and ownership must be accepted by MAOZ</caption>
+        <colgroup>
+          <col class="threat"><col class="control"><col class="proof"><col class="owner">
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Threat</th>
+            <th scope="col">Architectural control</th>
+            <th scope="col">Verification evidence</th>
+            <th scope="col">Residual risk · owner</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr class="group">
+            <th colspan="4" scope="rowgroup">A · Extraction and schema boundary</th>
+          </tr>
+          <tr>
+            <td><strong>Restricted fields enter the index</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-poc">POC</span></div>
+              Field-scoped Salesforce identity plus an explicit projection allow-list
+              carrying formula and derived-field dependency provenance; restricted
+              fields are never received by the extractor.</td>
+            <td>Negative extraction fixture and derived-field canary; captured payload
+              schema contains only approved fields and dependencies; attempted
+              restricted-field query is denied.</td>
+            <td class="residual">Allowed free text may still contain sensitive facts.
+              <span class="owner-line"><strong>Owner:</strong> MAOZ data owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Admin or schema drift silently widens access</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Compare effective field permissions, source metadata and derived-field
+              dependencies with the committed manifest on every run; abort on additions,
+              dependency changes or type changes; pin API version.</td>
+            <td>Permission-widening drill produces a failed run and alert; manifest
+              change requires code review and data-owner approval.</td>
+            <td class="residual">A colluding approver can accept a harmful change.
+              <span class="owner-line"><strong>Owner:</strong> Salesforce admin + data owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Integration credential is stolen</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Certificate-based OAuth, read-only object/field scope, restricted network
+              origin, secrets outside the repository, short rotation schedule.</td>
+            <td>Salesforce login-history review; secret scan; certificate rotation and
+              revocation drill; denied write attempt.</td>
+            <td class="residual">The credential can read the approved projection until revoked.
+              <span class="owner-line"><strong>Owner:</strong> platform owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Delete, merge or correction is missed</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Incremental tombstones, daily full-identifier reconciliation, merge aliases,
+              and a synchronous purge path covering source text, derived lexical variants
+              and vectors.</td>
+            <td>Delete/merge/correct test record disappears or changes in every retrieval
+              leg; reconciliation repairs an intentionally skipped event.</td>
+            <td class="residual">Backups can reintroduce older derivatives after restore.
+              <span class="owner-line"><strong>Owner:</strong> integration owner</span></td>
+          </tr>
+        </tbody>
+
+        <tbody>
+          <tr class="group group-b">
+            <th colspan="4" scope="rowgroup">B · Derived index and local model boundary</th>
+          </tr>
+          <tr>
+            <td><strong>Database or index is exfiltrated</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              No public database endpoint; encrypted volume and backups; separate app,
+              sync, audit and operator roles; host and network least privilege.</td>
+            <td>External port check; database-role matrix test; encrypted-backup inspection;
+              quarterly restore exercise.</td>
+            <td class="residual">A host or database superuser can still reach plaintext.
+              <span class="owner-line"><strong>Owner:</strong> infrastructure owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Embeddings reveal source text</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-poc">POC</span></div>
+              Treat vectors as sensitive derived data: same row permissions, retention,
+              encryption and purge path as text; expose no vector endpoint or export.</td>
+            <td>Application role cannot select raw vectors; export route absent; purge test
+              verifies text and vector removal together.</td>
+            <td class="residual">Inversion is model-, length- and domain-dependent but real;
+              storage precision is not claimed as a defence.
+              <span class="owner-line"><strong>Owner:</strong> security owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Profile text reaches an external or instruction-following AI</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-poc">POC</span></div>
+              Fixed-purpose embedding and reranking are local; no hosted or
+              general-purpose instruction-following LLM receives profile text; inference
+              workers have no general outbound path. With translation removed, no model
+              in the system emits text, so there is no generated-content surface to
+              attack.</td>
+            <td>Egress-denial test while inference still succeeds; software bill of materials,
+              model hashes and licence inventory reviewed at release.</td>
+            <td class="residual">Model files and libraries remain a software supply-chain risk.
+              <span class="owner-line"><strong>Owner:</strong> ML / release owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>A restore resurrects erased profiles</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Define backup retention; protect a deletion ledger separately; after restore,
+              replay tombstones and reconcile Salesforce IDs before reopening search.</td>
+            <td>Restore drill starts with search disabled and proves the erased profile is
+              absent before health checks permit traffic.</td>
+            <td class="residual">Long-lived offline copies lengthen effective deletion time.
+              <span class="owner-line"><strong>Owner:</strong> operations + privacy owner</span></td>
+          </tr>
+        </tbody>
+
+        <tbody>
+          <tr class="group">
+            <th colspan="4" scope="rowgroup">C · Query, UI and inference channels</th>
+          </tr>
+          <tr>
+            <td><strong>A revoked viewer retains access</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Revalidate active status and search permission against Salesforce at
+              request time; no long-lived local entitlement cache; fail closed. Per-record
+              visibility resolution is added before member launch.
+              <strong>Proportionality, considered and declined:</strong> a short-TTL
+              entitlement cache (30–60 s) would be the cheaper design and is genuinely
+              defensible. I keep per-request revalidation because staff departure — not
+              an external attacker — is the live risk in a staff-only system, and at a
+              handful of queries per minute the cost is negligible. If measured
+              Salesforce latency makes that untrue in practice, this is the first control
+              to trade, and the residual becomes a stated revocation window rather than a
+              silent one.</td>
+            <td>Mid-session deactivation and search-permission removal tests deny the next
+              request; a record-sharing change test measures Salesforce propagation time;
+              timeout denies rather than degrading open.</td>
+            <td class="residual">Availability depends on Salesforce, and Salesforce
+              sharing recalculation can itself lag even without a local cache; MAOZ must
+              set and monitor an acceptable revocation window.
+              <span class="owner-line"><strong>Owner:</strong> identity owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Hidden rows affect ranking before filtering</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-launch">before member launch</span></div>
+              Join the viewer's authoritative allowed-ID relation inside each exact lexical
+              and vector retrieval statement; enforce with a non-bypass database role.</td>
+            <td>Seed the globally closest profile as hidden: it never appears, alters rank,
+              changes a count or enters reranking; inspect the executed query plan.</td>
+            <td class="residual">A future ANN design needs a new proof; pgvector filters after
+              index scan even with iterative retry.
+              <span class="owner-line"><strong>Owner:</strong> search engineer</span></td>
+          </tr>
+          <tr>
+            <td><strong>Repeated searches enumerate the network</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span> <span class="badge badge-launch">before member launch</span></div>
+              <strong>Split deliberately. Kept in v1 because it is nearly free:</strong> small constant-shape
+              result tiers, no exact counts, no raw scores, no bulk export, and
+              out-of-pattern review driven by the access audit.
+              <strong>Staged, because it is not:</strong> cumulative and burst limits,
+              minimum cohort sizes and a timing floor. Those throttle a discovery tool to
+              defend against an adversary who, in a staff-only v1, is a named employee
+              already covered by least privilege, audit and monthly review. They ship
+              when the audience widens and that assumption stops holding.</td>
+            <td>v1: sampled audit review surfaces out-of-pattern query volume. Before
+              member launch: scripted probing hits cumulative limits; sparse facets
+              suppress counts; security review exercises differencing and pagination
+              attacks.</td>
+            <td class="residual">In v1 a determined staff member can enumerate the
+              network; the control is deterrence through named access and review, not
+              prevention, and MAOZ should accept that explicitly. Even with the full set
+              shipped, a patient viewer can still infer membership or sector through
+              result or timing changes.
+              <span class="owner-line"><strong>Owner:</strong> product + security owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Snippets, queries or logs expose sensitive context</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Separate staff/member projections and disjoint aspect labels; evidence spans
+              come only from viewer-visible fields; escape output; keep raw query text out
+              of general telemetry; restrict the identifiable security audit.</td>
+            <td>Staff-only canary never appears in any member response, label or snippet;
+              rendered-output injection test; sampled logs contain no profile text or raw
+              vector; only the audit role can read identified access history.</td>
+            <td class="residual">Queries themselves may express sensitive intent; the audit
+              store is valuable and must have its own retention.
+              <span class="owner-line"><strong>Owner:</strong> privacy + application owner</span></td>
+          </tr>
+        </tbody>
+
+        <tbody>
+          <tr class="group group-b">
+            <th colspan="4" scope="rowgroup">D · Operations, misuse and governance</th>
+          </tr>
+          <tr>
+            <td><strong>Authorised insider searches for private reasons</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Named users, least privilege, stated purpose, an access audit append-only to
+              application and migration roles, periodic review and unusual-query alerts.</td>
+            <td>Application and migration roles cannot update/delete audit rows; monthly access review;
+              simulated out-of-pattern search reaches the reviewer.</td>
+            <td class="residual">A privileged database administrator remains technically
+              capable; deterrence depends on real review and consequences.
+              <span class="owner-line"><strong>Owner:</strong> executive / DPO or privacy owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Frozen sync leaves unsafe or misleading data searchable</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-v1">v1</span></div>
+              Heartbeat and data-age monitor, visible freshness timestamp, maximum-staleness
+              cutoff that disables results, and a named on-call restore path.</td>
+            <td>Stop the worker: warning appears, alert fires, then search closes at the
+              agreed threshold; recovery reconciles before reopening.</td>
+            <td class="residual">The safe failure mode interrupts introductions.
+              <span class="owner-line"><strong>Owner:</strong> operations owner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Search purpose or inferred category is unlawful or unfair</strong></td>
+            <td><div class="cell-badge"><span class="badge badge-launch">before member launch</span></div>
+              Approve purpose, notices/consent and field taxonomy; review whether sector or
+              free text reveals specially sensitive information; offer correction and removal.</td>
+            <td>Signed data map and assessment; member-facing wording reviewed; test correction
+              and withdrawal end-to-end; per-sector coverage reported before launch.</td>
+            <td class="residual">Cross-sector labels can proxy ethnicity, political opinion or
+              religious belief even when no field says so explicitly.
+              <span class="owner-line"><strong>Owner:</strong> MAOZ leadership + counsel / DPO</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- =================== LIFECYCLE & GOVERNANCE =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">05</span><span class="t">Privacy lifecycle &amp; governance</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      The index is temporary; accountability is not. Each stage needs a decision,
+      an owner and evidence that survives beyond the person who built the POC.
+    </p>
+
+    <div class="lifecycle">
+      <article class="life-step">
+        <span class="num">01 · DECIDE</span>
+        <h4>Purpose &amp; inventory</h4>
+        <p>Name the use case, audience, legal basis and prohibited uses. Classify every
+          proposed field and likely sensitive inference before it reaches the allow-list.</p>
+      </article>
+      <article class="life-step">
+        <span class="num">02 · COLLECT</span>
+        <h4>Minimum projection</h4>
+        <p>Extract under field-level security, record the manifest and policy version,
+          stop on drift, and keep real data out of development fixtures.</p>
+      </article>
+      <article class="life-step">
+        <span class="num">03 · USE</span>
+        <h4>Authorised search</h4>
+        <p>Resolve current row visibility before ranking, minimise the result, prevent
+          enumeration, and audit access for a defined review purpose.</p>
+      </article>
+      <article class="life-step">
+        <span class="num">04 · CORRECT</span>
+        <h4>Rectify, withdraw, erase</h4>
+        <p>Propagate Salesforce corrections and withdrawals through source text,
+          derived lexical variants, vectors, caches and restored backups; verify
+          against a searchable test record.</p>
+      </article>
+      <article class="life-step">
+        <span class="num">05 · RETIRE</span>
+        <h4>Retain &amp; dispose</h4>
+        <p>Set separate periods for profiles, queries, access audits and backups. Securely
+          delete expired derivatives and rehearse restore and incident-response decisions.</p>
+      </article>
+    </div>
+
+    <div class="law-panel">
+      <article class="law-main">
+        <span class="law-label">Legal touchpoint · not legal advice</span>
+        <h3>Amendment 13 changes the questions MAOZ must answer; it does not answer them from this diagram.</h3>
+        <p>Amendment 13 to Israel's Privacy Protection Law was approved on
+          5 August 2024 and came into force on 14 August 2025. It expands enforcement
+          and defines “specially sensitive information” to include, among other things,
+          ethnic origin, political opinions, religious beliefs or worldview. In a
+          cross-sector network, sector labels and narrative text may reveal those
+          attributes by inference. Engineering controls provide evidence for an
+          assessment; they are not a finding of compliance.</p>
+      </article>
+
+      <article class="law-questions">
+        <span class="law-label">Decisions for MAOZ and Israeli counsel</span>
+        <h3>Classify before a real-data pilot</h3>
+        <ul>
+          <li>What is the specific purpose and what notice, consent or other basis covers semantic discovery?</li>
+          <li>Is MAOZ the controller, holder, or both for each database and service relationship?</li>
+          <li>Do the selected fields or likely inferences constitute specially sensitive information?</li>
+          <li>Which 2017 Data Security Regulations tier applies, and what duties follow?</li>
+          <li>Do registration, notification, DPO or security-officer obligations apply at MAOZ's actual scale and role?</li>
+          <li>What response and retention commitments can operations genuinely meet?</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="roles">
+      <div class="role">
+        <h4>Data owner</h4>
+        <p>Purpose, field allow-list, visibility and retention decisions.</p>
+      </div>
+      <div class="role">
+        <h4>Salesforce admin</h4>
+        <p>Integration identity, field permissions and source authorisation truth.</p>
+      </div>
+      <div class="role">
+        <h4>Search / operations owner</h4>
+        <p>Build, patches, monitoring, restore, deletion and evidence collection.</p>
+      </div>
+      <div class="role">
+        <h4>Privacy owner / DPO / counsel</h4>
+        <p>Applicable duties, notices, requests, audit review and incident decisions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== RISKS & ASSUMPTIONS =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">06</span><span class="t">Residual risks, assumptions &amp; launch gates</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      These are not defects to hide. They are the conditions under which the design
+      is safe enough to test — and the facts that could change the recommendation.
+    </p>
+
+    <div class="risk-grid">
+      <article class="risk-card">
+        <h3>Residual risks that remain</h3>
+        <ul>
+          <li><strong>Embeddings remain sensitive derivatives.</strong> Access controls
+            reduce exposure; they cannot prove reconstruction is impossible.</li>
+          <li><strong>Inference cannot be fully removed.</strong> Rate limits, cohort
+            thresholds and tiered results make enumeration harder, not impossible.</li>
+          <li><strong>Self-hosting creates an operator obligation.</strong> Someone must
+            own patching, certificates, backups, restore and incident response.</li>
+          <li><strong>Coverage can encode structural bias.</strong> Thin profiles can make
+            a community less findable even when the ranking code is neutral.</li>
+        </ul>
+      </article>
+
+      <article class="risk-card">
+        <h3>Working assumptions · pending clarification</h3>
+        <ul>
+          <li><strong>Audience:</strong> named MAOZ staff only for the POC; no member
+            access until expressly approved.</li>
+          <li><strong>Data:</strong> Hebrew-language profiles, confirmed by MAOZ,
+            with English appearing inside records as organisation names, job titles
+            and acronyms; the take-home
+            repository and demo contain synthetic data only.</li>
+          <li><strong>Runtime:</strong> all production inference is local and does not
+            send profile text to an external model API.</li>
+          <li><strong>Unknowns:</strong> real field structure, current consent/notice,
+            record-visibility rules, run expectations and deletion/retention commitments
+            still need MAOZ confirmation.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="launch-gates">
+      <div class="launch-gate">
+        <span class="label">Real-data staff pilot</span>
+        <p>Approved purpose and field manifest; applicable legal/security classification;
+          named operations and privacy owners; tested deletion, restore and audit paths.</p>
+      </div>
+      <div class="launch-gate">
+        <span class="label">Member-facing access</span>
+        <p>Confirmed consent/notice and field visibility; Salesforce-authoritative
+          per-record authorisation proven under revocation; enumeration exercise passed;
+          correction/withdrawal route available to members.</p>
+      </div>
+      <div class="launch-gate">
+        <span class="label">Approximate search later</span>
+        <p>A separate design review proving filtered recall, permission behaviour and
+          tail latency. Iterative ANN scanning must not be described as true pre-filtering.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== AI DISCLOSURE =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">07</span><span class="t">AI tools disclosure</span><span class="fill"></span>
+    </div>
+    <div class="disclosure">
+      <span class="label">Living disclosure · 20 July 2026</span>
+      <div>
+        <p><strong>Claude Code</strong> and <strong>OpenAI Codex</strong> were used as
+          authoring and engineering assistants: to explore structure, challenge threat
+          models, draft and revise prose, implement the HTML presentations, and review
+          technical claims and code changes. Codex also implemented the synthetic Part B
+          search module and local RTL UI, evaluated local model quantization and a
+          rejected reranker, added authorization and offline regression tests, and ran
+          the frozen-corpus acceptance evaluation.</p>
+        <p>The candidate selected the architecture and trade-offs, reviewed and edited
+          the output, and checked load-bearing legal and technical claims against primary
+          sources. <strong>Correction · 20 July:</strong> Codex opened MAOZ’s public
+          network directory while preparing an optional dataset. Browser output exposed
+          public names, roles and one short professional-background passage in the
+          assistant context. This breached the project’s stricter working rule against
+          sending profile text to a hosted AI, despite the source being public. No
+          person-level content was written to the repository or converted into a fixture;
+          the companion corpus uses only abstract field shape and aggregate role mix.
+          All searchable Part B records remain explicitly synthetic. The rule that was
+          breached still stands, and it is reported here rather than quietly corrected
+          because a disclosure that only lists the tools, and not the one time they were
+          used outside the boundary, is not much of a disclosure.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="source-notes">
+    <h3>Authority and claim boundaries</h3>
+    <p>The Privacy Protection Authority's
+      <a href="https://www.gov.il/BlobFolder/reports/guide_tikon13_professional/he/tikun%2013%20_170825.pdf">Guide to Amendment 13</a>
+      and its <a href="https://www.gov.il/BlobFolder/legalinfo/data_security_regulation/en/PROTECTION%20OF%20PRIVACY%20REGULATIONS.pdf">English convenience translation of the 2017 Data Security Regulations</a>
+      are the legal touchpoints for the assessment questions above. Exact
+      classification and duties depend on MAOZ's facts and should be confirmed by
+      Israeli counsel or the organisation's appointed privacy professional.</p>
+    <p>The embedding-inversion risk is grounded in Morris et al.,
+      <a href="https://arxiv.org/abs/2310.06816"><cite>Text Embeddings Reveal
+      (Almost) As Much As Text</cite></a> (EMNLP 2023). Its strongest exact-recovery
+      result is a constrained best case — evidence to protect embeddings as data,
+      not a universal recovery rate. The
+      <a href="https://github.com/pgvector/pgvector#filtering">pgvector filtering documentation</a>
+      supports the distinction between exact retrieval and post-filtered approximate
+      scanning; Salesforce's
+      <a href="https://developer.salesforce.com/blogs/2023/05/write-simplified-and-secure-apex-with-spring-23-updates">user-mode database-operation guidance</a>
+      establishes the platform mechanism whose concrete use must be validated in the
+      MAOZ org.</p>
+  </footer>
+
+</div>

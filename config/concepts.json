@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "description": "Transparent staff-owned domain vocabulary added after dense BGE-M3 and its paired reranker both missed the required flagship match. Entries map concepts, never people or profile IDs.",
+  "owner": "MAOZ network management (proposed for a real pilot)",
+  "review_cadence": "Quarterly and after every judged false positive or false negative",
+  "concepts": [
+    {
+      "id": "informal_education",
+      "label_he": "חינוך בלתי פורמלי",
+      "triggers": [
+        "חינוך בלתי פורמלי",
+        "למידה בלתי פורמלית",
+        "פעילות חינוכית מחוץ לבית הספר"
+      ],
+      "expansions": [
+        "תנועות נוער",
+        "הדרכת מדריכים ומנהיגות צעירה",
+        "מסגרות קהילתיות לבני ובנות נוער"
+      ]
+    },
+    {
+      "id": "social_connection_older_adults",
+      "label_he": "קשרים חברתיים בגיל מבוגר",
+      "triggers": [
+        "צמצום בדידות בקרב קשישים",
+        "הפגת בדידות בגיל השלישי",
+        "קשר חברתי לאזרחים ותיקים"
+      ],
+      "expansions": [
+        "מועדוני מפגש לאזרחים ותיקים",
+        "ביקורי בית ושיחות עם מתנדבים",
+        "קשרים בין דוריים ופעילות חברתית"
+      ]
+    },
+    {
+      "id": "inclusive_employment",
+      "label_he": "תעסוקה מכלילה",
+      "triggers": [
+        "הנגשת קריירה לבעלי צרכים מיוחדים",
+        "תעסוקה לאנשים הזקוקים להתאמות",
+        "שילוב אנשים עם מוגבלות בעבודה"
+      ],
+      "expansions": [
+        "התאמות במקום העבודה וקליטת עובדים",
+        "גיוס מכליל והכשרת מנהלים",
+        "חיבור מועמדים למעסיקים"
+      ]
+    },
+    {
+      "id": "participatory_local_government",
+      "label_he": "ממשל מקומי משתף",
+      "triggers": [
+        "שיתוף ציבור בקבלת החלטות",
+        "מעורבות תושבים בהחלטות עירוניות",
+        "דמוקרטיה השתתפותית"
+      ],
+      "expansions": [
+        "אספות תושבים",
+        "תקציב משתף ברשות מקומית",
+        "התייעצות ציבורית ובניית הסכמות"
+      ]
+    },
+    {
+      "id": "circular_economy",
+      "label_he": "שימוש חוזר במשאבים",
+      "triggers": [
+        "כלכלה מעגלית",
+        "שימוש חוזר במשאבים",
+        "הפחתת פסולת באמצעות שימוש חוזר"
+      ],
+      "expansions": [
+        "תיקון והארכת חיי מוצרים",
+        "השאלה ושיתוף ציוד בקהילה",
+        "העברת מוצרים לשימוש חוזר"
+      ]
+    },
+    {
+      "id": "emotional_recovery_after_crisis",
+      "label_he": "התאוששות רגשית אחרי משבר",
+      "triggers": [
+        "חוסן נפשי אחרי משבר",
+        "התאוששות רגשית ממשבר",
+        "תמיכה רגשית לאחר אירועי חירום"
+      ],
+      "expansions": [
+        "קבוצות תמיכה וליווי רגשי",
+        "סיוע נפשי למשפחות לאחר חירום",
+        "הכשרת מנחים קהילתיים"
+      ]
+    },
+    {
+      "id": "community_emergency_preparedness",
+      "label_he": "היערכות קהילתית לחירום",
+      "triggers": [
+        "היערכות קהילתית לשעת חירום",
+        "מוכנות שכונתית להפסקת שירותים"
+      ],
+      "expansions": [
+        "צוותי תגובה מקומיים",
+        "מיפוי תושבים הזקוקים לסיוע",
+        "תרגול חלוקת ציוד"
+      ]
+    }
+  ],
+  "guardrails": {
+    "profile_ids_forbidden": true,
+    "lexical_ranking_unchanged": true,
+    "evidence_must_remain_original_source_text": true,
+    "scope": "Synthetic POC vocabulary; MAOZ must approve entries before real-data use"
+  }
+}

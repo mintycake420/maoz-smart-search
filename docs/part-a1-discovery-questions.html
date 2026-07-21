@@ -1,0 +1,605 @@
+<title>Five Questions for the Network Managers — MAOZ Smart Search</title>
+
+<style>
+  :root {
+    --paper:   #F3F5F5;
+    --surface: #FFFFFF;
+    --ink:     #14262A;
+    --body:    #33474B;
+    --muted:   #6A7E81;
+    --rule:    #DBE3E3;
+    --rule-hi: #C3D0D1;
+    --a:       #1C5A67;
+    --b:       #8A5714;
+    --a-soft:  #E6EFF1;
+    --b-soft:  #F5ECDC;
+
+    --f-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    --f-body: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --f-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+    --page: 62rem;
+    --measure: 34rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:   #0D1618;
+      --surface: #142124;
+      --ink:     #E9EFEF;
+      --body:    #B7C7C9;
+      --muted:   #7B8F91;
+      --rule:    #23373B;
+      --rule-hi: #31494E;
+      --a:       #77BCCA;
+      --b:       #DFAA53;
+      --a-soft:  #112E35;
+      --b-soft:  #2A2211;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:   #0D1618;
+    --surface: #142124;
+    --ink:     #E9EFEF;
+    --body:    #B7C7C9;
+    --muted:   #7B8F91;
+    --rule:    #23373B;
+    --rule-hi: #31494E;
+    --a:       #77BCCA;
+    --b:       #DFAA53;
+    --a-soft:  #112E35;
+    --b-soft:  #2A2211;
+  }
+
+  :root[data-theme="light"] {
+    --paper:   #F3F5F5;
+    --surface: #FFFFFF;
+    --ink:     #14262A;
+    --body:    #33474B;
+    --muted:   #6A7E81;
+    --rule:    #DBE3E3;
+    --rule-hi: #C3D0D1;
+    --a:       #1C5A67;
+    --b:       #8A5714;
+    --a-soft:  #E6EFF1;
+    --b-soft:  #F5ECDC;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--body);
+    font-family: var(--f-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--page);
+    margin-inline: auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.1rem, 4vw, 2.5rem) 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    border-bottom: 1px solid var(--rule-hi);
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .masthead h1 {
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    text-wrap: balance;
+    max-width: 20ch;
+  }
+
+  .masthead h1 em {
+    font-style: italic;
+    color: var(--a);
+  }
+
+  .standfirst {
+    max-width: var(--measure);
+    font-size: 1.05rem;
+  }
+
+  .framing {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    max-width: 46rem;
+    padding: 0.95rem 1.15rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--a);
+    font-size: 0.9rem;
+  }
+
+  .framing .mark {
+    font-family: var(--f-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--a);
+    padding-top: 0.28rem;
+    flex-shrink: 0;
+  }
+
+  /* ---------- question blocks ---------- */
+
+  .questions {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.75rem, 5vw, 4rem);
+    counter-reset: q;
+  }
+
+  .q {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+  }
+
+  .q-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.6rem;
+  }
+
+  .q-num {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--a);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .q-tag {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .q-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .q-ask {
+    font-family: var(--f-display);
+    font-weight: 400;
+    font-size: clamp(1.15rem, 2.3vw, 1.45rem);
+    line-height: 1.42;
+    color: var(--ink);
+    max-width: 44rem;
+    text-wrap: pretty;
+  }
+
+  .q-why {
+    font-size: 0.92rem;
+    color: var(--muted);
+    max-width: 44rem;
+  }
+
+  .q-why b {
+    font-weight: 600;
+    color: var(--body);
+  }
+
+  /* ---------- the fork ---------- */
+
+  .fork-split {
+    display: block;
+    width: 100%;
+    height: 34px;
+    overflow: visible;
+    margin-bottom: -1px;
+  }
+
+  .fork-split path {
+    fill: none;
+    stroke: var(--rule-hi);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .branches {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(0.9rem, 2vw, 1.5rem);
+  }
+
+  .branch {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--bc);
+    padding: 1.1rem 1.2rem 1.25rem;
+  }
+
+  .branch-a { --bc: var(--a); --bs: var(--a-soft); }
+  .branch-b { --bc: var(--b); --bs: var(--b-soft); }
+
+  .lbl {
+    display: inline-block;
+    align-self: flex-start;
+    font-family: var(--f-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bc);
+    background: var(--bs);
+    padding: 0.18rem 0.45rem;
+  }
+
+  .cond {
+    font-size: 0.95rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .then {
+    font-size: 0.93rem;
+    color: var(--body);
+  }
+
+  .then strong {
+    color: var(--bc);
+    font-weight: 600;
+  }
+
+  .aside {
+    display: flex;
+    gap: 0.6rem;
+    font-size: 0.86rem;
+    color: var(--muted);
+    padding-top: 0.2rem;
+  }
+
+  .aside .mark {
+    font-family: var(--f-mono);
+    color: var(--rule-hi);
+    flex-shrink: 0;
+  }
+
+  /* ---------- closing ---------- */
+
+  .closing {
+    border-top: 1px solid var(--rule-hi);
+    padding-top: clamp(1.5rem, 3vw, 2.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    max-width: 46rem;
+  }
+
+  .closing h2 {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .closing p {
+    font-size: 0.94rem;
+  }
+
+  .closing strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- responsive ---------- */
+
+  @media (max-width: 46rem) {
+    .fork-split { display: none; }
+    .branches { grid-template-columns: 1fr; }
+    .branch { border-top-width: 2px; }
+  }
+
+  /* ---------- print / PDF ---------- */
+
+  @media print {
+    :root {
+      --paper: #FFFFFF;
+      --surface: #FFFFFF;
+    }
+    body { font-size: 10.5pt; }
+    .wrap { padding: 0; gap: 1.6rem; }
+    .q { break-inside: avoid; page-break-inside: avoid; }
+    .branch { break-inside: avoid; }
+    .questions { gap: 1.9rem; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="eyebrow">MAOZ · Smart Search · Part A.1</span>
+    <h1>Five questions I would ask <em>before</em> writing any code</h1>
+    <p class="standfirst">
+      Each question below was chosen for one reason: the answer changes what gets
+      built. Not the settings — the structure. Where an answer forks the system,
+      both roads are shown.
+    </p>
+    <div class="framing">
+      <span class="mark">NOTE</span>
+      <p>
+        These are questions for the people who <em>run the network</em>, not for IT.
+        Every one is phrased so that a non-technical answer still resolves a
+        technical decision — that is the test of whether it was worth asking.
+      </p>
+    </div>
+  </header>
+
+  <main class="questions">
+
+    <!-- 01 -->
+    <article class="q">
+      <div class="q-head">
+        <span class="q-num">01</span>
+        <span class="q-tag">Data reality</span>
+        <span class="q-rule"></span>
+      </div>
+      <h2 class="q-ask">
+        “Show me three member records you'd call complete. For areas of activity,
+        interests and values — is that a picklist, a free-text bio, or notes a staff
+        member wrote after a meeting? Roughly what share of the network has it
+        filled in, and when was it last touched?”
+      </h2>
+      <p class="q-why">
+        <b>Why first:</b> it decides whether this is a retrieval problem or a data problem.
+        Semantic search over four sparse tags is theatre.
+      </p>
+
+      <svg class="fork-split" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M200 0 L200 17 L1 17 L1 34" />
+        <path d="M200 0 L200 17 L399 17 L399 34" />
+      </svg>
+
+      <div class="branches">
+        <div class="branch branch-a">
+          <span class="lbl">If</span>
+          <p class="cond">Rich free text, widely populated.</p>
+          <p class="then"><strong>A retrieval project.</strong> Embed the narrative
+            fields directly and ship search.</p>
+        </div>
+        <div class="branch branch-b">
+          <span class="lbl">If</span>
+          <p class="cond">Four thin tags on a third of records.</p>
+          <p class="then"><strong>An enrichment project.</strong> Draft profile
+            summaries from existing meeting notes, run a completion campaign. Search
+            becomes phase two.</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 02 -->
+    <article class="q">
+      <div class="q-head">
+        <span class="q-num">02</span>
+        <span class="q-tag">Trust boundary</span>
+        <span class="q-rule"></span>
+      </div>
+      <h2 class="q-ask">
+        “When a member searches, should they see another member's contact details —
+        or only a name and a ‘request an introduction’ button? Are there fields —
+        donor status, staff assessments, personal circumstances — that must never
+        surface to another member?”
+      </h2>
+      <p class="q-why">
+        <b>Why it matters:</b> it decides whether authorisation is a setting applied
+        at the end, or a constraint that shapes the whole pipeline.
+      </p>
+
+      <svg class="fork-split" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M200 0 L200 17 L1 17 L1 34" />
+        <path d="M200 0 L200 17 L399 17 L399 34" />
+      </svg>
+
+      <div class="branches">
+        <div class="branch branch-a">
+          <span class="lbl">If</span>
+          <p class="cond">Staff-only for version one.</p>
+          <p class="then"><strong>One index, one trust boundary.</strong>
+            Materially faster to ship, and the security surface stays small.</p>
+        </div>
+        <div class="branch branch-b">
+          <span class="lbl">If</span>
+          <p class="cond">Member-facing, with restricted fields.</p>
+          <p class="then"><strong>Permissions enforced inside retrieval.</strong>
+            Filter candidates <em>before</em> ranking, and embed a redacted projection
+            of each record — an embedding of a private note is still derived from it.</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 03 -->
+    <article class="q">
+      <div class="q-head">
+        <span class="q-num">03</span>
+        <span class="q-tag">Outcome</span>
+        <span class="q-rule"></span>
+      </div>
+      <h2 class="q-ask">
+        “What happens in the ten seconds after a good result appears? Does the member
+        email the person directly, or come to you for a warm introduction — and does
+        anything need to be recorded back in Salesforce?”
+      </h2>
+      <p class="q-why">
+        <b>Why it matters:</b> it decides whether the output is a list of rows or a
+        set of dossiers — two different products.
+      </p>
+
+      <svg class="fork-split" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M200 0 L200 17 L1 17 L1 34" />
+        <path d="M200 0 L200 17 L399 17 L399 34" />
+      </svg>
+
+      <div class="branches">
+        <div class="branch branch-a">
+          <span class="lbl">If</span>
+          <p class="cond">They take it from there.</p>
+          <p class="then"><strong>A search box.</strong> Ranked results with contact
+            details, and the work ends at the result.</p>
+        </div>
+        <div class="branch branch-b">
+          <span class="lbl">If</span>
+          <p class="cond">Staff broker the introduction.</p>
+          <p class="then"><strong>A brokering workflow.</strong> A short
+            <em>why this match</em> dossier per person and a request-intro action
+            that writes back to Salesforce, keeping the relationship visible to staff.</p>
+        </div>
+      </div>
+
+      <div class="aside">
+        <span class="mark">&#8627;</span>
+        <p>Either way, the searches themselves become intelligence: repeated unmet
+          demand for, say, water-tech regulators is something the network managers
+          would want to see.</p>
+      </div>
+    </article>
+
+    <!-- 04 -->
+    <article class="q">
+      <div class="q-head">
+        <span class="q-num">04</span>
+        <span class="q-tag">Evidence</span>
+        <span class="q-rule"></span>
+      </div>
+      <h2 class="q-ask">
+        “Give me the ten searches from last month that were painful or came up empty
+        — real ones, in the words the person actually used.”
+      </h2>
+      <p class="q-why">
+        <b>Why it matters:</b> this is the only way to know whether the new system is
+        better than the old one. Without it, <b>“the search is good”</b> is an opinion.
+        The grammar of those queries also picks the retrieval strategy.
+      </p>
+
+      <svg class="fork-split" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M200 0 L200 17 L1 17 L1 34" />
+        <path d="M200 0 L200 17 L399 17 L399 34" />
+      </svg>
+
+      <div class="branches">
+        <div class="branch branch-a">
+          <span class="lbl">If</span>
+          <p class="cond">Attribute lookups — “a fintech regulator in the Negev”.</p>
+          <p class="then"><strong>Vector search with metadata filters</strong>, where
+            the structured fields carry much of the weight.</p>
+        </div>
+        <div class="branch branch-b">
+          <span class="lbl">If</span>
+          <p class="cond">Need-shaped — “someone who has survived a board revolt”.</p>
+          <p class="then"><strong>Matching on experience narrative.</strong> Retrieval
+            over the professional-trajectory aspect rather than the role field — this
+            is precisely where keyword search fails hardest.</p>
+        </div>
+      </div>
+
+      <div class="aside">
+        <span class="mark">&#8627;</span>
+        <p>And if the painful searches turn out to be mostly <em>“how do I spell their
+          surname”</em>, the honest answer is that they need better lexical search,
+          not AI.</p>
+      </div>
+    </article>
+
+    <!-- 05 -->
+    <article class="q">
+      <div class="q-head">
+        <span class="q-num">05</span>
+        <span class="q-tag">Legitimacy</span>
+        <span class="q-rule"></span>
+      </div>
+      <h2 class="q-ask">
+        “If a member searched and saw themselves ranked below someone else — or
+        noticed the results skewing toward one sector — how much damage is that? And
+        have members consented to their profiles being used this way?”
+      </h2>
+      <p class="q-why">
+        <b>Why it matters:</b> a network built on trust has a failure mode a CRM does
+        not. A result can be technically correct and still corrosive.
+      </p>
+
+      <svg class="fork-split" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M200 0 L200 17 L1 17 L1 34" />
+        <path d="M200 0 L200 17 L399 17 L399 34" />
+      </svg>
+
+      <div class="branches">
+        <div class="branch branch-a">
+          <span class="lbl">If</span>
+          <p class="cond">Ranking and representation are sensitive.</p>
+          <p class="then"><strong>Suppress numeric scores</strong>, deliberately
+            diversify the top results across sectors, and audit output composition
+            against the composition of the network itself.</p>
+        </div>
+        <div class="branch branch-b">
+          <span class="lbl">If</span>
+          <p class="cond">Consent constrains where data may travel.</p>
+          <p class="then"><strong>Profile text never leaves MAOZ infrastructure</strong>
+            — which is what forces a locally hosted embedding model rather than any
+            third-party API.</p>
+        </div>
+      </div>
+
+      <div class="aside">
+        <span class="mark">&#8627;</span>
+        <p>A retrieval system that quietly favours the most articulate, most central
+          and most represented members would score well on relevance and work against
+          the mission.</p>
+      </div>
+    </article>
+
+  </main>
+
+  <footer class="closing">
+    <h2>Deliberately not asked</h2>
+    <p>
+      <strong>Network size and growth rate, and previous attempts at this inside
+      Salesforce.</strong> Both matter — but each is an assumption I can state and
+      defend in the architecture rather than spend one of five slots on. Scale is the
+      clearest case: at a few thousand members, exhaustive vector search is genuinely
+      sufficient, and saying so is more useful than asking.
+    </p>
+    <p>
+      <strong>The language mix was not one of them.</strong> An earlier draft of this
+      page listed it here, as an assumption safe to carry. That was wrong, and the
+      correction is worth more than the original claim: the question went to MAOZ by
+      email alongside these five, the answer came back
+      <span dir="rtl" lang="he">המערכת בשפה העברית</span>, and it retired an entire
+      subsystem — a bilingual indexing pipeline with two translation models and an
+      index-time materialisation step. It is the single largest change to the design in
+      Part A.2. A question that deletes a subsystem before it is built is the cheapest
+      thing in this document.
+    </p>
+  </footer>
+
+</div>

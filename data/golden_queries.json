@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "description": "Synthetic query set. 'calibration' sets the confidence gate; 'demo' and 'test' are authored acceptance probes whose semantic intents are configured in config/concepts.json; 'heldout' queries target profiles with NO concept entry and are never used to fit the threshold. Relevance labels remain hypotheses until MAOZ supplies real searches and judgments.",
+  "queries": [
+    {
+      "id": "demo_flagship_informal_education",
+      "query": "חינוך בלתי פורמלי",
+      "role": "demo",
+      "query_kind": "semantic",
+      "expected_leg": "dense",
+      "show_in_ui": true,
+      "ui_label": "חינוך בלתי פורמלי",
+      "relevant_profile_ids": [
+        "003SYN000000001"
+      ],
+      "expected_top_profile_id": "003SYN000000001",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": true,
+      "expected_evidence": {
+        "profile_id": "003SYN000000001",
+        "field": "Experience__c",
+        "exact_sentence": "הקימה והובילה שלוש תנועות נוער אזוריות, הכשירה מדריכים ובנתה שותפויות עם רשויות מקומיות.",
+        "highlight": "תנועות נוער"
+      },
+      "notes": "Primary screen-share proof: the complete target record intentionally contains none of the normalized query tokens."
+    },
+    {
+      "id": "calibration_social_connection_older_adults",
+      "query": "צמצום בדידות בקרב קשישים",
+      "role": "calibration",
+      "query_kind": "semantic",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000002"
+      ],
+      "expected_top_profile_id": "003SYN000000002",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": true,
+      "expected_evidence": {
+        "profile_id": "003SYN000000002",
+        "field": "Experience__c",
+        "exact_sentence": "הקימה מועדוני מפגש קבועים לאזרחים ותיקים וחיברה מתנדבים לשיחות שבועיות."
+      },
+      "notes": "Calibrates a social-support intent expressed with different age and activity vocabulary."
+    },
+    {
+      "id": "calibration_inclusive_career_access",
+      "query": "הנגשת קריירה לבעלי צרכים מיוחדים",
+      "role": "calibration",
+      "query_kind": "semantic",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000003"
+      ],
+      "expected_top_profile_id": "003SYN000000003",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": true,
+      "expected_evidence": {
+        "profile_id": "003SYN000000003",
+        "field": "Experience__c",
+        "exact_sentence": "בנתה מסלולי קליטה מותאמים בשוק העבודה לבוגרים הזקוקים להתאמות וחיברה מועמדים למעסיקים."
+      },
+      "notes": "Calibrates inclusive-employment meaning without reusing the target profile's vocabulary."
+    },
+    {
+      "id": "test_participatory_local_government",
+      "query": "שיתוף ציבור בקבלת החלטות",
+      "role": "test",
+      "query_kind": "semantic",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000004"
+      ],
+      "expected_top_profile_id": "003SYN000000004",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": true,
+      "expected_evidence": {
+        "profile_id": "003SYN000000004",
+        "field": "Experience__c",
+        "exact_sentence": "הובילה אספות תושבים ותקציב משתף ברשות מקומית, והפכה הצעות שכונתיות לתוכנית עבודה שנתית."
+      },
+      "notes": "Authored acceptance probe for participatory governance; this configured intent is not a held-out generalization test."
+    },
+    {
+      "id": "test_circular_economy",
+      "query": "כלכלה מעגלית",
+      "role": "test",
+      "query_kind": "semantic",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000005"
+      ],
+      "expected_top_profile_id": "003SYN000000005",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": true,
+      "expected_evidence": {
+        "profile_id": "003SYN000000005",
+        "field": "Experience__c",
+        "exact_sentence": "הקימה מערך לתיקון ולהעברה חוזרת של מכשירי חשמל בין משפחות ומוסדות."
+      },
+      "notes": "Authored acceptance probe for repair and reuse; this configured intent is not a held-out generalization test."
+    },
+    {
+      "id": "test_emotional_recovery_after_crisis",
+      "query": "חוסן נפשי אחרי משבר",
+      "role": "test",
+      "query_kind": "semantic",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000008"
+      ],
+      "expected_top_profile_id": "003SYN000000008",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": true,
+      "expected_evidence": {
+        "profile_id": "003SYN000000008",
+        "field": "Experience__c",
+        "exact_sentence": "ניהלה קבוצות תמיכה וליווי רגשי למשפחות בעקבות אירועי חירום, והכשירה מנחים קהילתיים."
+      },
+      "notes": "Authored acceptance probe for post-crisis emotional support; this configured intent is not a held-out generalization test."
+    },
+    {
+      "id": "test_latin_entity_nova",
+      "query": "NOVA Skills",
+      "role": "test",
+      "query_kind": "latin_entity",
+      "expected_leg": "lexical",
+      "relevant_profile_ids": [
+        "003SYN000000009"
+      ],
+      "expected_top_profile_id": "003SYN000000009",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": {
+        "profile_id": "003SYN000000009",
+        "field": "Account.Name",
+        "exact_sentence": "NOVA Skills"
+      },
+      "notes": "Verifies that Latin-script organisation fragments survive normalization."
+    },
+    {
+      "id": "test_latin_acronym_ai",
+      "query": "AI במוקדי שירות",
+      "role": "test",
+      "query_kind": "latin_acronym",
+      "expected_leg": "gazetteer+lexical",
+      "relevant_profile_ids": [
+        "003SYN000000015"
+      ],
+      "expected_top_profile_id": "003SYN000000015",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": {
+        "profile_id": "003SYN000000015",
+        "field": "Experience__c",
+        "exact_sentence": "הטמיעה בינה מלאכותית במוקדי שירות עירוניים כדי לנתב פניות ולסייע לנציגים לאתר מידע.",
+        "highlight": "בינה מלאכותית"
+      },
+      "notes": "Uses the narrow acronym gazetteer; this is a robustness probe, not a semantic relevance claim."
+    },
+    {
+      "id": "test_hebrew_acronym_community_center",
+      "query": "מתנ״ס",
+      "role": "test",
+      "query_kind": "hebrew_acronym",
+      "expected_leg": "gazetteer+lexical",
+      "relevant_profile_ids": [
+        "003SYN000000006"
+      ],
+      "expected_top_profile_id": "003SYN000000006",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": {
+        "profile_id": "003SYN000000006",
+        "field": "Areas_of_Activity__c",
+        "exact_sentence": "גישור; מרכז קהילתי; בניית הסכמות",
+        "highlight": "מרכז קהילתי"
+      },
+      "notes": "Checks Hebrew quote variants and acronym expansion only."
+    },
+    {
+      "id": "test_prefix_clitics_volunteers",
+      "query": "ולמתנדבים",
+      "role": "test",
+      "query_kind": "prefix_clitic",
+      "expected_leg": "lexical",
+      "relevant_profile_ids": [
+        "003SYN000000013"
+      ],
+      "expected_top_profile_id": "003SYN000000013",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": {
+        "profile_id": "003SYN000000013",
+        "field": "Description",
+        "exact_sentence": "מחברת מתנדבים למשימות קהילתיות קצרות ומתמשכות.",
+        "highlight": "מתנדבים"
+      },
+      "notes": "The query stacks the ו and ל prefixes; normalization should recover מתנדבים."
+    },
+    {
+      "id": "calibration_out_of_domain_astrophysics",
+      "query": "ספקטרום של כוכבי נייטרונים רחוקים",
+      "role": "calibration",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Synthetic negative used only to calibrate the confidence gate; it is not part of the regression evaluation."
+    },
+    {
+      "id": "test_out_of_domain_abstention",
+      "query": "תכנון מנועי יונים לחלל עמוק",
+      "role": "test",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "show_in_ui": true,
+      "ui_label": "דוגמה ללא התאמה",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Must return the explicit no-strong-match state rather than fill a result quota."
+    },
+    {
+      "id": "calibration_uncovered_career_change",
+      "query": "עובדים שצריכים להחליף מקצוע",
+      "role": "calibration",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000009"
+      ],
+      "expected_top_profile_id": "003SYN000000009",
+      "notes": "Uncovered positive: no concepts.json entry fires, so its score carries no expansion lift.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "calibration_uncovered_open_data",
+      "query": "שקיפות מידע ציבורי",
+      "role": "calibration",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000007"
+      ],
+      "expected_top_profile_id": "003SYN000000007",
+      "notes": "Second uncovered positive; keeps the fitted threshold reachable without expansion.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "calibration_out_of_domain_gearbox",
+      "query": "תיקון גיר אוטומטי ברכב משא",
+      "role": "calibration",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "notes": "Out-of-domain negative used to fit the confidence gate.",
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "calibration_out_of_domain_baking",
+      "query": "מתכון לעוגת גבינה אפויה",
+      "role": "calibration",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "notes": "Out-of-domain negative used to fit the confidence gate.",
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "calibration_out_of_domain_chess",
+      "query": "כללי הצבעה בשחמט מהיר",
+      "role": "calibration",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "notes": "Out-of-domain negative used to fit the confidence gate.",
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "calibration_out_of_domain_jet",
+      "query": "תחזוקת מנוע סילון של מטוס נוסעים",
+      "role": "calibration",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "notes": "Out-of-domain negative used to fit the confidence gate.",
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_water_saving",
+      "query": "חיסכון במים בחקלאות",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000017"
+      ],
+      "expected_top_profile_id": "003SYN000000017",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_conflict_resolution",
+      "query": "יישוב סכסוכים בין אוכלוסיות",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000006"
+      ],
+      "expected_top_profile_id": "003SYN000000006",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_volunteer_recruitment",
+      "query": "גיוס אנשים לפעילות התנדבותית",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000013"
+      ],
+      "expected_top_profile_id": "003SYN000000013",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_urban_heat",
+      "query": "התמודדות עם גלי חום בעיר",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000011"
+      ],
+      "expected_top_profile_id": "003SYN000000011",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_visual_accessibility",
+      "query": "אתרים לאנשים עם לקות ראייה",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000012"
+      ],
+      "expected_top_profile_id": "003SYN000000012",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_community_memory",
+      "query": "תיעוד זיכרון של קהילות",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000018"
+      ],
+      "expected_top_profile_id": "003SYN000000018",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_disease_prevention",
+      "query": "מניעת מחלות בקרב תושבים",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000014"
+      ],
+      "expected_top_profile_id": "003SYN000000014",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_youth_employment",
+      "query": "כניסה של בני נוער לשוק העבודה",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000016"
+      ],
+      "expected_top_profile_id": "003SYN000000016",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "heldout_citizen_service_tech",
+      "query": "טכנולוגיה לשיפור המענה לתושב",
+      "role": "heldout",
+      "query_kind": "semantic_uncovered",
+      "expected_leg": "dense",
+      "relevant_profile_ids": [
+        "003SYN000000015"
+      ],
+      "expected_top_profile_id": "003SYN000000015",
+      "notes": "Held-out: target has no config/concepts.json entry and this query was not used to fit the threshold.",
+      "should_abstain": false,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null
+    },
+    {
+      "id": "test_out_of_domain_basketball",
+      "query": "כללי משחק בכדורסל מקצועני",
+      "role": "test",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Sport; unrelated to any MAOZ activity domain. Independent of threshold fitting."
+    },
+    {
+      "id": "test_out_of_domain_roman_history",
+      "query": "היסטוריה של האימפריה הרומית",
+      "role": "test",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Academic history; unrelated. Independent of threshold fitting."
+    },
+    {
+      "id": "test_out_of_domain_paediatric_dental",
+      "query": "טיפול שיניים אצל ילדים",
+      "role": "test",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Deliberately health-adjacent. The corpus contains health-and-welfare profiles, so this probes whether the gate abstains on a near-domain miss rather than only on obvious ones. Independent of threshold fitting."
+    },
+    {
+      "id": "test_out_of_domain_plumbing",
+      "query": "תיקון צנרת ביוב בבניין מגורים",
+      "role": "test",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Building maintenance; unrelated. Independent of threshold fitting."
+    },
+    {
+      "id": "test_out_of_domain_guitar",
+      "query": "לימוד נגינה על גיטרה קלאסית",
+      "role": "test",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Music tuition; unrelated. Independent of threshold fitting."
+    },
+    {
+      "id": "test_out_of_domain_weather",
+      "query": "חיזוי מזג אוויר לטווח ארוך",
+      "role": "test",
+      "query_kind": "out_of_domain",
+      "expected_leg": "confidence_gate",
+      "relevant_profile_ids": [],
+      "expected_top_profile_id": null,
+      "should_abstain": true,
+      "must_have_no_lexical_overlap": false,
+      "expected_evidence": null,
+      "notes": "Meteorology; unrelated. Independent of threshold fitting."
+    }
+  ]
+}

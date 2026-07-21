@@ -1,0 +1,200 @@
+{
+  "scope": "Independently authored graded relevance judgments over the companion corpus.",
+  "corpus": "data/directory_inspired_synthetic_profiles.json",
+  "provenance": "Authored by the repository owner against the profile list alone, without reading config/concepts.json. That independence is checkable rather than asserted: the concept vocabulary fires on none of these queries, so none of them were written to match it.",
+  "grades": {
+    "3": "primary match",
+    "2": "useful secondary match",
+    "0": "not relevant (any profile not listed)"
+  },
+  "protocol": "Tune only on dev. Acceptance and abstention are frozen. Nothing in this repository was tuned against any group - dev was measured perfect on first run, so the acceptance figures are a clean held-out result.",
+  "interpretation_rule": "Every query means 'who can help me with this'. Queries phrased as a situation rather than a person - acc_05 and acc_06 share the '[capability] without [thing]' shape - are person-queries, because this is a people search and staff type fragments. The rule is stated because acc_06 was challenged on exactly this point.",
+  "known_limitations": [
+    "The five abstention queries are inherited from data/golden_queries.json and are unrealistically distant from the domain (Roman history, basketball). They score 0.30-0.43 against a 0.47 threshold, so passing them is weak evidence. Realistic near-misses - a divorce lawyer, a personal trainer - would be a harder test.",
+    "Fifteen of eighteen positive queries share vocabulary with their primary target, so this set largely measures retrieval rather than the zero-overlap semantic bridging the brief names. Only dev_04, acc_06 and acc_10 are genuinely zero-overlap.",
+    "The dev group contains no negatives, so the confidence gate cannot be recalibrated on dev without touching frozen groups.",
+    "Single annotator, no second opinion."
+  ],
+  "queries": [
+    {
+      "id": "dev_01",
+      "group": "dev",
+      "query": "הכשרה מקצועית למנהלי בתי ספר ולצוותי הוראה",
+      "judgments": {
+        "003SYN000000101": 3
+      }
+    },
+    {
+      "id": "dev_02",
+      "group": "dev",
+      "query": "חיבור מעסיקים להכשרה ולקליטה של עובדים מרקעים מגוונים",
+      "judgments": {
+        "003SYN000000104": 3
+      }
+    },
+    {
+      "id": "dev_03",
+      "group": "dev",
+      "query": "מענה עירוני למשפחות שנקלעו למשבר כלכלי",
+      "judgments": {
+        "003SYN000000105": 3
+      }
+    },
+    {
+      "id": "dev_04",
+      "group": "dev",
+      "query": "הערכת העלות והתועלת של תוכנית חברתית ממשלתית",
+      "judgments": {
+        "003SYN000000108": 3
+      }
+    },
+    {
+      "id": "dev_05",
+      "group": "dev",
+      "query": "שיפור רצף הטיפול לאחר שחרור מבית חולים",
+      "judgments": {
+        "003SYN000000109": 3
+      }
+    },
+    {
+      "id": "acc_01",
+      "group": "acceptance",
+      "query": "איך מונעים דחיקה של תושבים כשמחדשים שכונה ישנה?",
+      "judgments": {
+        "003SYN000000102": 3
+      }
+    },
+    {
+      "id": "acc_02",
+      "group": "acceptance",
+      "query": "הקמת פעילות יצרנית ויצירת מקומות עבודה בנגב",
+      "judgments": {
+        "003SYN000000103": 3,
+        "003SYN000000104": 2
+      }
+    },
+    {
+      "id": "acc_03",
+      "group": "acceptance",
+      "query": "איחוד שירותים מוניציפליים בין כמה מועצות קטנות",
+      "judgments": {
+        "003SYN000000106": 3
+      }
+    },
+    {
+      "id": "acc_04",
+      "group": "acceptance",
+      "query": "ייעוץ וייצוג למי שלא מצליח לממש את הזכויות שלו",
+      "judgments": {
+        "003SYN000000105": 2,
+        "003SYN000000110": 3
+      }
+    },
+    {
+      "id": "acc_05",
+      "group": "acceptance",
+      "query": "קבלת שירות מהעירייה בלי להגיע פיזית למשרד",
+      "judgments": {
+        "003SYN000000112": 3,
+        "003SYN000000113": 2
+      }
+    },
+    {
+      "id": "acc_06",
+      "group": "acceptance",
+      "query": "אתר שאפשר להפעיל בלי עכבר",
+      "judgments": {
+        "003SYN000000113": 3
+      }
+    },
+    {
+      "id": "acc_07",
+      "group": "acceptance",
+      "query": "בניית חוסן שכונתי לגל חום ולהפסקת שירות ממושכת",
+      "judgments": {
+        "003SYN000000114": 3,
+        "003SYN000000118": 2
+      }
+    },
+    {
+      "id": "acc_08",
+      "group": "acceptance",
+      "query": "תיווך בסכסוך בין קהילות על חלוקת משאבים",
+      "judgments": {
+        "003SYN000000115": 3
+      }
+    },
+    {
+      "id": "acc_09",
+      "group": "acceptance",
+      "query": "שמירה על קשר חברתי ועצמאות של קשישים החיים בבית",
+      "judgments": {
+        "003SYN000000116": 3
+      }
+    },
+    {
+      "id": "acc_10",
+      "group": "acceptance",
+      "query": "מסלול לימודים קצר וגמיש שמוביל עובדים למשרה חדשה",
+      "judgments": {
+        "003SYN000000104": 2,
+        "003SYN000000117": 3
+      }
+    },
+    {
+      "id": "acc_11",
+      "group": "acceptance",
+      "query": "חקלאים קטנים שרוצים לחסוך במים ולשווק יחד",
+      "judgments": {
+        "003SYN000000119": 3
+      }
+    },
+    {
+      "id": "acc_12",
+      "group": "acceptance",
+      "query": "איסוף סיפורי משפחות והנגשתם לבתי ספר",
+      "judgments": {
+        "003SYN000000120": 3
+      }
+    },
+    {
+      "id": "acc_13",
+      "group": "acceptance",
+      "query": "פעילות ערכית לצעירים מחוץ למסגרת בית הספר",
+      "judgments": {
+        "003SYN000000107": 2,
+        "003SYN000000111": 3
+      }
+    },
+    {
+      "id": "abstain_01",
+      "group": "abstention",
+      "query": "לימוד נגינה בגיטרה קלאסית",
+      "judgments": {}
+    },
+    {
+      "id": "abstain_02",
+      "group": "abstention",
+      "query": "תיקון צנרת ביוב בבניין מגורים",
+      "judgments": {}
+    },
+    {
+      "id": "abstain_03",
+      "group": "abstention",
+      "query": "טיפול שיניים לילדים",
+      "judgments": {}
+    },
+    {
+      "id": "abstain_04",
+      "group": "abstention",
+      "query": "חוקי משחק בכדורסל מקצועני",
+      "judgments": {}
+    },
+    {
+      "id": "abstain_05",
+      "group": "abstention",
+      "query": "היסטוריה של האימפריה הרומית",
+      "judgments": {}
+    }
+  ]
+}

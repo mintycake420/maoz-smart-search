@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "built_at_utc": "2026-07-21T13:01:10+00:00",
+  "synthetic_only": true,
+  "corpus_sha256": "c2b9904580bf34c36e5ff00396cbbe06dbbe5cc0ddb3431cccf810639b8a7a16",
+  "golden_queries_sha256": "66f80af05fc90487cbc3190b737be6b6dc65eb1d9dcb141002d01cde15f2220c",
+  "gazetteer_sha256": "84d9c2e214a706a3a308b8818162c6ff0d2216a8a75c1893d430e928d0dee711",
+  "projection_contract_sha256": "5395874f3e15386a7da5970788fd9c349995abe8115339ea85f06f85e6c3b29b",
+  "concept_lexicon_sha256": "24b4807351f5e91505b499488abf3c1227ebe019928c931b6255b118f6b0b2cc",
+  "embedding": {
+    "model_id": "BAAI/bge-m3",
+    "upstream_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "dimension": 1024,
+    "pooling": "CLS",
+    "normalized": true,
+    "max_length": 512,
+    "inference_batch_size": 32,
+    "runtime": "ONNX Runtime CPU 1.26.0",
+    "quantization": "8-bit weight-only MatMulNBits (asymmetric blocks of 128; embedding tables int8)",
+    "runtime_model_dir": "models/bge-m3-int8",
+    "runtime_artifact_sha256": "c463873c98a123e82c093632f26d47b2dffb8d723a1d68e503f26f1be68d1d08",
+    "profile_artifact": "bge_m3_profiles.npz",
+    "profile_artifact_sha256": "516d4ecf697ce10a86884c11d2f6ef6052a2a0bcb5bcab3bf484c984990d7d2e"
+  },
+  "retrieval": {
+    "dense": "exact cosine",
+    "ranking": "dense only",
+    "lexical": "BM25, used as a gate-opener and diagnostic; never ranks",
+    "fusion": "removed - measured zero contribution on the golden set",
+    "note": "POC default, not tuned on MAOZ data"
+  },
+  "confidence": {
+    "dense_threshold": 0.495055,
+    "result_floor": 0.460055,
+    "result_relative_margin": 0.04,
+    "basis": "max over the original query and any approved concept expansions",
+    "calibration_query_ids": [
+      "calibration_social_connection_older_adults",
+      "calibration_inclusive_career_access",
+      "calibration_out_of_domain_astrophysics",
+      "calibration_uncovered_career_change",
+      "calibration_uncovered_open_data",
+      "calibration_out_of_domain_gearbox",
+      "calibration_out_of_domain_baking",
+      "calibration_out_of_domain_chess",
+      "calibration_out_of_domain_jet"
+    ],
+    "calibration_positive_retained": "4/4",
+    "calibration_uncovered_positive_ids": [
+      "calibration_uncovered_career_change",
+      "calibration_uncovered_open_data"
+    ],
+    "calibration_observations": [
+      {
+        "query_id": "calibration_social_connection_older_adults",
+        "top_dense": 0.707964,
+        "top_profile_id": "003SYN000000002",
+        "should_abstain": false,
+        "concept_ids": [
+          "social_connection_older_adults"
+        ]
+      },
+      {
+        "query_id": "calibration_inclusive_career_access",
+        "top_dense": 0.705977,
+        "top_profile_id": "003SYN000000003",
+        "should_abstain": false,
+        "concept_ids": [
+          "inclusive_employment"
+        ]
+      },
+      {
+        "query_id": "calibration_out_of_domain_astrophysics",
+        "top_dense": 0.408255,
+        "top_profile_id": "003SYN000000010",
+        "should_abstain": true,
+        "concept_ids": []
+      },
+      {
+        "query_id": "calibration_uncovered_career_change",
+        "top_dense": 0.556531,
+        "top_profile_id": "003SYN000000009",
+        "should_abstain": false,
+        "concept_ids": []
+      },
+      {
+        "query_id": "calibration_uncovered_open_data",
+        "top_dense": 0.608287,
+        "top_profile_id": "003SYN000000007",
+        "should_abstain": false,
+        "concept_ids": []
+      },
+      {
+        "query_id": "calibration_out_of_domain_gearbox",
+        "top_dense": 0.405101,
+        "top_profile_id": "003SYN000000003",
+        "should_abstain": true,
+        "concept_ids": []
+      },
+      {
+        "query_id": "calibration_out_of_domain_baking",
+        "top_dense": 0.352546,
+        "top_profile_id": "003SYN000000008",
+        "should_abstain": true,
+        "concept_ids": []
+      },
+      {
+        "query_id": "calibration_out_of_domain_chess",
+        "top_dense": 0.408038,
+        "top_profile_id": "003SYN000000004",
+        "should_abstain": true,
+        "concept_ids": []
+      },
+      {
+        "query_id": "calibration_out_of_domain_jet",
+        "top_dense": 0.433579,
+        "top_profile_id": "003SYN000000003",
+        "should_abstain": true,
+        "concept_ids": []
+      }
+    ],
+    "scope": "synthetic POC only; must be recalibrated before real-data use"
+  }
+}

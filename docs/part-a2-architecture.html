@@ -1,0 +1,1089 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Solution &amp; Architecture — MAOZ Smart Search</title>
+
+<style>
+  :root {
+    --paper:   #F3F5F5;
+    --surface: #FFFFFF;
+    --ink:     #14262A;
+    --body:    #33474B;
+    --muted:   #6A7E81;
+    --rule:    #DBE3E3;
+    --rule-hi: #C3D0D1;
+    --a:       #1C5A67;
+    --b:       #8A5714;
+    --a-soft:  #E6EFF1;
+    --b-soft:  #F5ECDC;
+
+    --f-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    --f-body: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --f-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+    --page: 66rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0D1618; --surface: #142124; --ink: #E9EFEF; --body: #B7C7C9;
+      --muted: #7B8F91; --rule: #23373B; --rule-hi: #31494E;
+      --a: #77BCCA; --b: #DFAA53; --a-soft: #112E35; --b-soft: #2A2211;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0D1618; --surface: #142124; --ink: #E9EFEF; --body: #B7C7C9;
+    --muted: #7B8F91; --rule: #23373B; --rule-hi: #31494E;
+    --a: #77BCCA; --b: #DFAA53; --a-soft: #112E35; --b-soft: #2A2211;
+  }
+  :root[data-theme="light"] {
+    --paper: #F3F5F5; --surface: #FFFFFF; --ink: #14262A; --body: #33474B;
+    --muted: #6A7E81; --rule: #DBE3E3; --rule-hi: #C3D0D1;
+    --a: #1C5A67; --b: #8A5714; --a-soft: #E6EFF1; --b-soft: #F5ECDC;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--body);
+    font-family: var(--f-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--page);
+    margin-inline: auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.1rem, 4vw, 2.5rem) 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.75rem, 5vw, 4.25rem);
+  }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    display: flex; flex-direction: column; gap: 1.15rem;
+    border-bottom: 1px solid var(--rule-hi);
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  .masthead h1 {
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(1.9rem, 4.4vw, 2.75rem);
+    line-height: 1.15; letter-spacing: -0.015em;
+    color: var(--ink); text-wrap: balance; max-width: 22ch;
+  }
+  .masthead h1 em { font-style: italic; color: var(--a); }
+  .standfirst { max-width: 38rem; font-size: 1.05rem; }
+
+  .thesis {
+    display: flex; gap: 0.9rem; align-items: flex-start;
+    max-width: 48rem; padding: 1.05rem 1.25rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 2px solid var(--a); font-size: 0.93rem;
+  }
+  .thesis .mark {
+    font-family: var(--f-mono); font-size: 0.68rem; letter-spacing: 0.12em;
+    color: var(--a); padding-top: 0.3rem; flex-shrink: 0;
+  }
+
+  /* ---------- generic section head ---------- */
+
+  .sec { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .sec-head { display: flex; align-items: baseline; gap: 0.85rem;
+    border-bottom: 1px solid var(--rule); padding-bottom: 0.6rem; }
+  .sec-head .n {
+    font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    color: var(--a); font-variant-numeric: tabular-nums;
+  }
+  .sec-head .t {
+    font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink);
+  }
+  .sec-head .fill { flex: 1; height: 1px; background: var(--rule); }
+
+  .sec-intro {
+    font-family: var(--f-display); font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+    line-height: 1.45; color: var(--ink); max-width: 44rem; text-wrap: pretty;
+  }
+
+  /* ---------- data flow diagram ---------- */
+
+  .legend { display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: 0.78rem;
+    font-family: var(--f-mono); letter-spacing: 0.04em; color: var(--muted); }
+  .legend span { display: flex; align-items: center; gap: 0.4rem; }
+  .legend i { width: 1.6rem; height: 2px; display: block; }
+  .key-a { background: var(--a); }
+  .key-b { background: var(--b); }
+  .key-c { background: var(--rule-hi); }
+
+  .flow { display: flex; flex-direction: column; gap: 0.55rem; }
+
+  .band {
+    display: flex; flex-direction: column; gap: 0.55rem;
+    border: 1px solid var(--rule); background: var(--surface);
+    padding: 0.9rem 1rem 1rem;
+  }
+  .band-a { border-top: 2px solid var(--a); }
+  .band-b { border-top: 2px solid var(--b); }
+  .band-c { border-top: 2px solid var(--rule-hi); background: transparent; border-style: dashed; }
+
+  .band-label {
+    font-family: var(--f-mono); font-size: 0.64rem; letter-spacing: 0.16em;
+    text-transform: uppercase; align-self: flex-start;
+    padding: 0.18rem 0.45rem;
+  }
+  .band-a .band-label { color: var(--a); background: var(--a-soft); }
+  .band-b .band-label { color: var(--b); background: var(--b-soft); }
+  .band-c .band-label { color: var(--muted); background: transparent; padding-left: 0; }
+
+  .rail {
+    display: flex; align-items: stretch; gap: 0;
+    overflow-x: auto; padding-bottom: 0.4rem;
+  }
+
+  .step {
+    flex: 1 0 8.5rem; min-width: 8.5rem;
+    display: flex; flex-direction: column; gap: 0.3rem;
+    padding: 0.15rem 0.7rem 0.15rem 0;
+    position: relative;
+  }
+  .step + .step { padding-left: 0.9rem; }
+  .step + .step::before {
+    content: "";
+    position: absolute; left: 0.1rem; top: 0.62rem;
+    width: 0.42rem; height: 0.42rem;
+    border-top: 1.5px solid var(--arrow); border-right: 1.5px solid var(--arrow);
+    transform: rotate(45deg);
+  }
+  .band-a .step { --arrow: var(--a); }
+  .band-b .step { --arrow: var(--b); }
+
+  .step h4 {
+    font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3;
+  }
+  .step .tech {
+    font-family: var(--f-mono); font-size: 0.66rem; line-height: 1.45;
+    color: var(--muted); letter-spacing: 0.01em;
+  }
+
+  .store {
+    display: flex; flex-direction: column; gap: 0.45rem;
+    border: 1px solid var(--rule-hi); background: var(--surface);
+    padding: 0.95rem 1.1rem; border-left: 2px solid var(--ink);
+  }
+  .store h4 { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+  .store .holds {
+    font-family: var(--f-mono); font-size: 0.68rem; color: var(--muted); line-height: 1.6;
+  }
+  .store .note { font-size: 0.84rem; color: var(--body); }
+
+  .connector {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-family: var(--f-mono); font-size: 0.66rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding-left: 0.15rem;
+  }
+  .connector::before { content: "\2193"; font-size: 0.9rem; }
+  .conn-a { color: var(--a); }
+  .conn-b { color: var(--b); }
+  .conn-b::before { content: "\2191"; }
+
+  .govern-items { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; }
+  .govern-items div { flex: 1 1 12rem; }
+  .govern-items h4 { font-size: 0.82rem; font-weight: 600; color: var(--ink); }
+  .govern-items p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- decisions ---------- */
+
+  .decisions { display: flex; flex-direction: column; gap: 1.6rem; }
+
+  .dec {
+    display: flex; flex-direction: column; gap: 0.75rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-top: 2px solid var(--a); padding: 1.15rem 1.3rem 1.3rem;
+  }
+  .dec-head { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+  .dec-area {
+    font-family: var(--f-mono); font-size: 0.64rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--a); background: var(--a-soft);
+    padding: 0.18rem 0.45rem;
+  }
+  .dec h3 {
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(1.02rem, 2vw, 1.2rem); line-height: 1.4; color: var(--ink);
+  }
+  .dec p { font-size: 0.92rem; }
+  .dec .rejected { font-size: 0.86rem; color: var(--muted); }
+  .dec .rejected b { color: var(--body); font-weight: 600; }
+
+  .challenge {
+    display: flex; flex-direction: column; gap: 0.45rem;
+    border-left: 2px solid var(--b); background: var(--b-soft);
+    padding: 0.8rem 1rem; margin-top: 0.2rem;
+  }
+  .challenge .lbl {
+    font-family: var(--f-mono); font-size: 0.62rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--b);
+  }
+  .challenge .obj { font-size: 0.88rem; color: var(--ink); font-style: italic; }
+  .challenge .ans { font-size: 0.88rem; }
+  .code {
+    font-family: var(--f-mono); font-size: 0.84em;
+    background: var(--surface); border: 1px solid var(--rule);
+    padding: 0.05rem 0.28rem;
+  }
+
+  /* ---------- stages ---------- */
+
+  .stages { display: flex; flex-direction: column; gap: 0; }
+  .stage {
+    display: grid; grid-template-columns: 7.5rem 1fr; gap: 0 1.4rem;
+    padding: 1rem 0; border-top: 1px solid var(--rule);
+  }
+  .stage:last-child { border-bottom: 1px solid var(--rule); }
+  .stage .when {
+    font-family: var(--f-mono); font-size: 0.7rem; letter-spacing: 0.08em;
+    color: var(--a); text-transform: uppercase; padding-top: 0.15rem;
+  }
+  .stage .what { display: flex; flex-direction: column; gap: 0.4rem; }
+  .stage h4 { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+  .stage p { font-size: 0.88rem; }
+  .stage .proves { font-size: 0.85rem; color: var(--muted); }
+  .stage .proves b { color: var(--body); font-weight: 600; }
+  .gate {
+    align-self: flex-start;
+    font-family: var(--f-mono); font-size: 0.6rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--b); background: var(--b-soft);
+    padding: 0.15rem 0.4rem;
+  }
+
+  /* ---------- unknowns ---------- */
+
+  .unknowns { display: flex; flex-direction: column; gap: 0.9rem; }
+  .unk {
+    display: grid; grid-template-columns: 5.5rem 1fr; gap: 0 1.1rem;
+    align-items: baseline;
+  }
+  .unk .tag {
+    font-family: var(--f-mono); font-size: 0.64rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .unk p { font-size: 0.9rem; }
+  .unk p b { color: var(--ink); font-weight: 600; }
+
+  .closing {
+    border-top: 1px solid var(--rule-hi); padding-top: 1.75rem;
+    display: flex; flex-direction: column; gap: 0.7rem; max-width: 46rem;
+  }
+  .closing p { font-size: 0.92rem; }
+  .closing strong { color: var(--ink); font-weight: 600; }
+  .closing a { color: var(--a); text-underline-offset: 0.18em; }
+
+  /* ---------- responsive ---------- */
+
+  @media (max-width: 48rem) {
+    .stage { grid-template-columns: 1fr; gap: 0.5rem; }
+    .unk { grid-template-columns: 1fr; gap: 0.25rem; }
+    .step { flex: 1 0 7.5rem; min-width: 7.5rem; }
+  }
+
+  /* ---------- print ---------- */
+
+  @page { size: A4; margin: 0; }
+
+  @media print {
+    :root,
+    :root[data-theme="dark"],
+    :root[data-theme="light"] {
+      --paper: #FFFFFF; --surface: #FFFFFF; --ink: #14262A; --body: #33474B;
+      --muted: #5D7073; --rule: #D2DCDD; --rule-hi: #B9C8CA;
+      --a: #1C5A67; --b: #8A5714; --a-soft: #E6EFF1; --b-soft: #F5ECDC;
+    }
+    body { font-size: 10pt; }
+    .wrap { padding: 0; gap: 1.7rem; }
+    .dec, .stage, .band, .store { break-inside: avoid; page-break-inside: avoid; }
+    .rail { overflow-x: visible; flex-wrap: wrap; }
+    .decisions { gap: 1rem; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="eyebrow">MAOZ · Smart Search · Part A.2</span>
+    <h1>Redact at the source, do the Hebrew work at <em>index time</em>, ship the introduction</h1>
+    <p class="standfirst">
+      The solution, the data flow from Salesforce to a presented result, and the
+      reasoning behind each choice — including the ones I expect to be challenged.
+    </p>
+    <div class="thesis">
+      <span class="mark">THESIS</span>
+      <p>
+        Salesforce stays the system of record <em>and</em> the authorization
+        authority. Fields excluded by the approved projection do not leave it:
+        field-level security, an explicit allow-list and derived-field dependency
+        review enforce that boundary. Every search revalidates the viewer with
+        Salesforce and binds its authoritative allowed-record relation before
+        ranking; no available authority means no search. The profile index is a
+        disposable derivative; audit and evaluation records have their own
+        controlled retention. And the hardest requirement — matching
+        <span dir="rtl" lang="he">חינוך בלתי פורמלי</span> to
+        <span dir="rtl" lang="he">תנועות נוער</span> when the two share no word —
+        is <em>built as a mechanism</em> rather than assumed as a property of the
+        model, because Hebrew morphology defeats lexical search precisely where
+        this system has to succeed.
+      </p>
+    </div>
+  </header>
+
+  <!-- =================== THE DIAGRAM =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">01</span><span class="t">Data flow</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Two paths, meeting at one store. The index path deals only in the approved,
+      redacted projection; the query path returns to Salesforce on every request
+      for current viewer status and record visibility before it touches ranking.
+    </p>
+
+    <div class="legend">
+      <span><i class="key-a"></i> Index time — scheduled</span>
+      <span><i class="key-b"></i> Query time — per request</span>
+      <span><i class="key-c"></i> Governance — continuous</span>
+    </div>
+
+    <div class="flow">
+
+      <div class="band band-c">
+        <span class="band-label">Gate — runs before any extraction</span>
+        <div class="govern-items">
+          <div>
+            <h4>Field-scoped integration identity</h4>
+            <p>An API-only Salesforce user whose field permissions withhold donor
+              status, staff assessments and personal circumstances. They are absent
+              from the payload, not filtered afterwards.</p>
+          </div>
+          <div>
+            <h4>Committed field allow-list</h4>
+            <p>Version-controlled YAML. Each run compares the integration user's
+              effective permissions against it and <em>aborts on drift</em> — an
+              admin widening a permission set cannot silently add a field.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="band band-a">
+        <span class="band-label">Index time — Salesforce to a populated index</span>
+        <div class="rail">
+          <div class="step">
+            <h4>Salesforce</h4>
+            <p class="tech">System of record · API version pinned, never “latest”</p>
+          </div>
+          <div class="step">
+            <h4>Extract</h4>
+            <p class="tech">Bulk API for backfill · delta poll on SystemModstamp · polled per contributing object, not just Contact</p>
+          </div>
+          <div class="step">
+            <h4>Project</h4>
+            <p class="tech">Four aspect documents per person: role+org · trajectory · interests+values · affiliations</p>
+          </div>
+          <div class="step">
+            <h4>Normalise</h4>
+            <p class="tech">Two Hebrew profiles — one for lexical, one for embedding · gershayim, maqaf, NFKC</p>
+          </div>
+          <div class="step">
+            <h4>Expand</h4>
+            <p class="tech">Prefix-clitic variants (ו/ב/ל/כ/מ/ש/ה) · staff-editable acronym gazetteer and concept vocabulary, both versioned · Latin-script fragments kept verbatim and glossed</p>
+          </div>
+          <div class="step">
+            <h4>Embed</h4>
+            <p class="tech">Local BAAI/bge-m3 · the only path permitted to make a vector · owns the model input contract</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector conn-a">Written in one transaction · gated on an embedding-identity hash</div>
+
+      <div class="store">
+        <h4>One PostgreSQL database, with pgvector</h4>
+        <p class="holds">profile rows · aspect vectors · Hebrew lexical index · watermarks · tombstones &amp; merge aliases · append-only audit log · evaluation labels</p>
+        <p class="note">
+          A single store means one backup target, one upgrade path and one credential
+          store — while retaining separate least-privilege roles — and transactional
+          consistency between a profile and its vectors, so the index cannot drift
+          from itself. Vectors are scanned <em>exactly</em>,
+          not approximately, so retrieval can rank the complete Salesforce-allowed
+          relation rather than hope an approximate candidate set survives filtering.
+        </p>
+      </div>
+
+      <div class="connector conn-b">Read only after per-request Salesforce revalidation · allowed-record relation bound into local SQL / RLS</div>
+
+      <div class="band band-b">
+        <span class="band-label">Query time — a question to a presented result</span>
+        <div class="rail">
+          <div class="step">
+            <h4>Intent</h4>
+            <p class="tech">Free text plus hard facets: sector, region, cohort, availability</p>
+          </div>
+          <div class="step">
+            <h4>Revalidate</h4>
+            <p class="tech">Every request checks the active viewer and permission assignment with Salesforce · timeout, stale or unavailable = deny</p>
+          </div>
+          <div class="step">
+            <h4>Bind scope</h4>
+            <p class="tech">Salesforce supplies the authoritative visible-record relation · transaction-scoped join inside local SQL / RLS</p>
+          </div>
+          <div class="step">
+            <h4>Process</h4>
+            <p class="tech">Clitic-stripped lexical variants · acronym expansion · an inspectable concept bridge when configured · model input contract enforced inside the service</p>
+          </div>
+          <div class="step">
+            <h4>Retrieve</h4>
+            <p class="tech">Dense exact cosine + Hebrew-aware lexical inside the allowed relation · never a candidate-only post-filter</p>
+          </div>
+          <div class="step">
+            <h4>Fuse</h4>
+            <p class="tech">Target-state option: reciprocal rank fusion across legs · removed from the POC after an ablation measured its contribution at zero · per-person aggregation keeps the winning aspect either way</p>
+          </div>
+          <div class="step">
+            <h4>Rerank</h4>
+            <p class="tech">Target-state option: local BAAI/bge-reranker-v2-m3 over allowed pairs · omitted from the POC after it worsened the flagship probe</p>
+          </div>
+          <div class="step">
+            <h4>Gate</h4>
+            <p class="tech">Below a calibrated threshold, say “no strong match — ask staff” rather than fill ten slots</p>
+          </div>
+          <div class="step">
+            <h4>Compose</h4>
+            <p class="tech">Sector-diversified · highlighted evidence spans · provenance badge · tiers, never raw scores</p>
+          </div>
+          <div class="step">
+            <h4>Present</h4>
+            <p class="tech">A shortlist that ends in a brokered introduction, not a ranked list of strangers</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="band band-c">
+        <span class="band-label">Governance — continuous, alongside both paths</span>
+        <div class="govern-items">
+          <div>
+            <h4>Audit &amp; anti-enumeration</h4>
+            <p>Append-only log of the viewer, stated purpose, policy version, and
+              result IDs returned or opened, on a database role the application
+              cannot rewrite. Cumulative caps, not just daily ones.</p>
+          </div>
+          <div>
+            <h4>Evaluation harness</h4>
+            <p>Golden queries with a mandatory no-lexical-overlap probe, failing
+              the build on regression. Labels live inside the trust boundary.</p>
+          </div>
+          <div>
+            <h4>Coverage monitor</h4>
+            <p>Per-sector fill rates and truncation rates. If one community's
+              profiles are systematically thinner, that is a launch gate.</p>
+          </div>
+          <div>
+            <h4>Reconciliation</h4>
+            <p>Daily full-identifier sweep plus a synchronous purge action, with
+              verification across current searchable derivatives and restore
+              reconciliation.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =================== DECISIONS =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">02</span><span class="t">Choices &amp; considerations</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Six decisions the brief asks me to justify. For each: what I chose, what I
+      rejected, and the strongest objection I expect — with the answer.
+    </p>
+
+    <div class="decisions">
+
+      <article class="dec">
+        <div class="dec-head"><span class="dec-area">Environment</span></div>
+        <h3>One repository, one database, two long-running processes, four scheduled jobs.</h3>
+        <p>An importable Python package plus a small server-rendered UI, running
+          from one compose file on a single modest VM hosted in Israel. The same
+          package, entry points and configuration schema run on laptop and in
+          production; production adds identity, network, backup and monitoring
+          controls.</p>
+        <p class="rejected"><b>Rejected:</b> Kubernetes, a workflow orchestrator,
+          a message queue, a separate model-serving container, managed Postgres, and
+          a JavaScript SPA — each adds a daemon with its own upgrade cadence and
+          failure modes to serve a handful of queries per minute.</p>
+        <div class="challenge">
+          <span class="lbl">Under challenge</span>
+          <p class="obj">“You have put a legally sensitive database on a self-hosted
+            box owned by an organisation with no platform team. Managed Postgres
+            would be safer.”</p>
+          <p class="ans">My first answer to this was wrong, and correcting it is
+            more useful than defending it. I had assumed Hebrew <em>forced</em>
+            self-hosting, because file-backed dictionaries — stopword lists,
+            morphological lemmatisers — must be installed on the server, and no
+            managed provider documents a way to do that. But Hebrew stopwords can be
+            stripped with <span class="code">ts_delete</span> inside a generated
+            column on any managed Postgres, so that argument does not hold. The
+            narrower case is an Israel-region deployment, cost, and keeping model
+            inference off a hosted API; the infrastructure host still sits inside
+            the trust boundary. Upgrades use a rebuild from Salesforce, and the
+            target design exercises that rebuild monthly. If MAOZ cannot
+            name a person accountable for monthly patching, the recommendation flips
+            to managed Postgres — which, now that the Hebrew objection is gone,
+            costs us less than I first thought.</p>
+        </div>
+      </article>
+
+      <article class="dec">
+        <div class="dec-head"><span class="dec-area">Models &amp; AI tools</span></div>
+        <h3>The target design permits two local checkpoints; the measured POC ships one.</h3>
+        <p>The primary encoder is <span class="code">BAAI/bge-m3</span> (MIT): it
+          has published Hebrew retrieval evidence and requires no instruction prefix,
+          which removes a whole class of silent prefix bug. Its 8,192-token
+          architectural limit is <em>headroom, not a benefit this POC realises</em>.
+          Aspects are embedded separately, so the unit that has to fit is one aspect,
+          and the longest aspect in the corpus tokenises to <b>59 tokens</b>; an entire
+          profile reaches about 348 characters, or 129 tokens, even if all four were
+          concatenated. BAAI themselves recommend
+          <span class="code">max_length=1024</span>. I keep it on the list because
+          MAOZ's real bios may be far longer than my fixtures, not because anything
+          here exercises it. <b>Corrected after review:</b> an earlier version of this
+          paragraph said 160 characters. That counted only the four narrative fields
+          and omitted title, organisation, sector, description, affiliations and cohort,
+          which the projection also encodes — understating the input by roughly half.
+          The conclusion is unchanged, and the corrected figure makes it stronger. The
+          local cross-encoder is
+          <span class="code">BAAI/bge-reranker-v2-m3</span> (Apache-2.0), if adopted,
+          would apply only to the small, already-authorised candidate set. Both
+          checkpoints stay local. Because the POC machine is CPU-only, wall-clock
+          feasibility is a launch criterion. <b>The Part B experiment rejected the
+          reranker for this POC: on the frozen synthetic flagship it moved the intended
+          profile from raw dense rank 2 to rank 4.</b> That local result does not refute
+          reranking in general; it makes inclusion conditional on MAOZ-owned judgments.</p>
+        <p><b>Two translation models were removed from this design when MAOZ
+          confirmed the system is Hebrew.</b> They existed to make an English query
+          retrieve a Hebrew profile. That requirement no longer holds, so the
+          machinery goes — along with the risk of translation errors being baked
+          into a persisted index. English still appears inside Hebrew records as
+          organisation names, job titles and acronyms, so the system must not break
+          on Latin script; that is now a robustness property, not a headline
+          capability.</p>
+        <p>These names are a measured starting point, not a claim that a model card
+          predicts MAOZ quality. In week one, BGE-M3 is compared with a smaller
+          multilingual baseline on MAFAT's Hebrew Semantic Retrieval National
+          Challenge set, on MAOZ's golden queries when available, and on wall-clock
+          CPU latency. The embedding-identity hash makes the winner replaceable by
+          a deterministic rebuild.</p>
+        <p class="rejected"><b>Rejected:</b> hosted embedding APIs (send profile
+          text outside the MAOZ-controlled trust boundary); very large embedding models (wrong operational tier,
+          and leaderboard aggregates do not predict Hebrew retrieval quality);
+          licence-encumbered models, including non-commercial licences a nonprofit
+          that may later partner should not have to defend. <b>Licence is a
+          screening criterion applied to every model, checked per repository rather
+          than per family</b> — the first translation model I selected turned out to
+          carry the same non-commercial licence I had just rejected an embedding
+          model for. That model is now gone from the design for a different reason,
+          but the screening step stays: “the Qwen licence” and “the OPUS-MT licence”
+          are not single things, and the check has to be per checkpoint.</p>
+        <div class="challenge">
+          <span class="lbl">AI-use disclosure · current working version</span>
+          <p class="ans"><b>Claude Code</b> supported initial drafting, architecture
+            synthesis and organisation of source checking. <b>OpenAI Codex</b>
+            reviewed the first implementation pass; challenged authorization and
+            technical claims; implemented
+            the synthetic Part B module, local RTL UI and tests; evaluated local model
+            quantization, retrieval, reranking and abstention; and revised the living
+            documentation. <b>Claude Code</b> then reviewed the completed Part B
+            implementation: it reproduced a fresh-clone startup failure caused by
+            line-ending normalisation of the hashed model directory, authored the
+            held-out probe set that exposed the confidence-gate and lexical-gate
+            defects described above, implemented the fixes and their regression tests,
+            and re-measured every number quoted in Part B. I selected the architecture,
+            checked load-bearing claims against primary sources, reviewed and edited
+            every output, and remain accountable for the submission. <b>Correction ·
+            20 July:</b> while preparing an optional dataset, Codex opened MAOZ’s public
+            network directory to inspect its field shape. Browser output exposed public
+            names, roles and one short professional-background passage in the assistant
+            context. That breached this project’s stricter working rule against sending
+            profile text to a hosted AI, even though the page is public. No person-level
+            content was copied into the repository or turned into a fixture; the new
+            companion corpus uses only an abstract field shape and aggregate role mix.
+            Every searchable Part B record remains explicitly synthetic.</p>
+        </div>
+        <div class="challenge">
+          <span class="lbl">Under challenge</span>
+          <p class="obj">“How do you know any of this works in Hebrew?”</p>
+          <p class="ans">The Part B POC now supplies narrow evidence, not a general
+            answer: on one frozen synthetic corpus, 8/8 acceptance probes rank first,
+            7/7 unrelated probes abstain, and 7/9 <em>held-out</em> probes — queries
+            written against profiles with no concept-vocabulary entry, and excluded
+            from threshold fitting — rank first. Raw BGE-M3 put the flagship target
+            second, the tested reranker made it fourth, and a transparent staff-owned
+            concept bridge made the configured intent first. The held-out set exists
+            because the configured probes were measured and found to prove less than
+            they appeared to: before the review fixes, the assembled pipeline ranked
+            the intended profile first on only 4 of 11 held-out queries while the dense
+            leg alone managed 9, so the machinery was subtracting from the model. The
+            configured probes are regression checks; only the held-out number bears on
+            generalisation, and nine authored queries is a smoke test rather than a
+            Hebrew evaluation. I therefore put the
+            quality burden on components I control and can measure — the golden set,
+            versioned vocabulary, confidence gate and morphological variants — while
+            genuine validation waits for MAOZ-owned queries. Critically, the choice is
+            <em>reversible</em>: an embedding-identity hash makes a model swap
+            deterministic; full rebuild duration is measured on the target CPU
+            before any operational commitment. Confidence about the process,
+            honesty about the priors.</p>
+        </div>
+      </article>
+
+      <article class="dec">
+        <div class="dec-head"><span class="dec-area">RAG</span></div>
+        <h3>Retrieval and evidence — deliberately not retrieval-augmented generation.</h3>
+        <p>Retrieve wide, score, gate on confidence, diversify, then
+          explain <em>extractively</em>: which aspect matched, which terms matched,
+          and the sentence that carried it — highlighted in the source text, with a
+          badge saying whether it was self-described, staff-noted or member-confirmed.
+          No hosted or general-purpose instruction-following LLM receives profile
+          text at any point — and with translation removed from the design, no
+          model in the system generates text at all.</p>
+        <p class="rejected"><b>Rejected:</b> LLM-generated match rationales,
+          hypothetical-document query expansion, and the chunk-and-summarise
+          document-RAG framing — which is simply the wrong shape for short
+          structured profiles.</p>
+        <div class="challenge">
+          <span class="lbl">Under challenge</span>
+          <p class="obj">“You were asked for an AI system and you have removed the
+            AI. A competitor will demo a chatbot; you show highlighted text.”</p>
+          <p class="ans">This is the decision most likely to read as
+            under-delivery, so let me name that risk rather than hide it. The AI
+            <em>is</em> the encoder and the cross-encoder — they are what lets a
+            search for <span dir="rtl" lang="he">חינוך בלתי פורמלי</span> surface a
+            profile that says <span dir="rtl" lang="he">תנועות נוער</span> and shares
+            no word with it, which is the capability the brief actually names. What I
+            removed is <em>general-purpose, instruction-following generation in the
+            query path</em>, for reasons specific to MAOZ: member-authored bios are
+            untrusted input, so putting them in a
+            prompt is textbook indirect prompt injection; a hallucinated attribute
+            about a real member is a data-accuracy problem, not an embarrassment;
+            and self-explanations are documented as unfaithful to the ranking they
+            claim to describe. I specify a constrained, still risk-bearing upgrade
+            path — a self-hosted model inside the same trust boundary, limited to
+            already-extracted spans and subject to output validation — rather than
+            treating generation as safe by default.</p>
+        </div>
+      </article>
+
+      <article class="dec">
+        <div class="dec-head"><span class="dec-area">Storage</span></div>
+        <h3>One PostgreSQL database with pgvector. Exact search, no approximate index.</h3>
+        <p>Profile rows, vectors, lexical index, audit log and evaluation labels
+          in one transaction boundary. Half-precision vectors keep the working set
+          small. The permission predicate rides <em>inside</em> the scan as
+          row-level security rather than filtering results afterwards.</p>
+        <p class="rejected"><b>Rejected:</b> dedicated vector engines — the best of
+          them solve a filtered-approximate-search problem MAOZ does not have, at
+          the price of a second daemon, a second backup regime and a reconciliation
+          job. Documented as the escape hatch at very large growth, where migrating
+          is a re-index rather than a rewrite.</p>
+        <div class="challenge">
+          <span class="lbl">Under challenge</span>
+          <p class="obj">“Exact search doesn't scale — and your own design
+            multiplies row count by aspects.”</p>
+          <p class="ans">Correct — and in fact worse than stated, which I would
+            rather surface than be caught on. In-process the scan is genuinely
+            cheap: on the order of 3 ms at ten thousand rows and 15–20 ms at fifty
+            thousand, measured, because the work is memory-bandwidth-bound. Those
+            numbers do <em>not</em> transfer into Postgres. A half-precision
+            1024-dimension vector occupies 2,056 bytes, fractionally above
+            Postgres's ~2 kB inline threshold, so every vector is pushed
+            out-of-line and each scan pays extra fetches plus a conversion per row;
+            third-party reports put an unindexed scan at a million rows in
+            <em>seconds</em>. So the honest position is narrower than “exact scales
+            fine”: exact is right for the proof of concept and for a staff-only
+            index in the low tens of thousands, and at the upper bound it needs
+            either fewer dimensions — 512 fits inline and removes the penalty
+            outright — or an approximate index. But the reason to <em>start</em>
+            exact is correctness, not speed. With a mandatory permission filter, an
+            approximate index can silently truncate results, and pgvector still
+            applies filters after the index scan — iterative scan is post-filtering
+            with retry, not true pre-filtering. A missing person in a permissions
+            context is a defect users cannot detect and therefore cannot report.
+            Starting exact supplies the baseline against which any later approximate
+            index can measure filtered recall.</p>
+        </div>
+      </article>
+
+      <article class="dec">
+        <div class="dec-head"><span class="dec-area">Embeddings</span></div>
+        <h3>Four aspects per person, one service, and length limits counted in Hebrew tokens.</h3>
+        <p>A single code path may produce a vector, and it owns the complete input
+          contract; BGE-M3 requires no query or passage prefix. Splitting a person into
+          aspects stops one strong signal being diluted by unrelated fields — and
+          the winning aspect <em>is</em> the explanation, for free. Length caps are
+          counted in real tokens, because Hebrew tokenises expensively and character
+          caps truncate it invisibly.</p>
+        <p class="rejected"><b>Rejected:</b> one blob per person (loses the aspect
+          signal and the free explanation); mean-pooling across aspects (dilutes the
+          one that matched); dimension reduction without measurement — 512-dimensional
+          <span class="code">halfvec</span> fits inline and avoids the 1,024-dimensional
+          TOAST penalty, but its retrieval-recall cost must be measured; a text-only
+          content hash — the most dangerous omission
+          available, because a model swap would then re-embed nothing and leave
+          queries and documents in two unrelated spaces with no error raised.</p>
+        <div class="challenge">
+          <span class="lbl">Under challenge</span>
+          <p class="obj">“You designed an elaborate bilingual indexing pipeline and
+            then deleted it. Why should I trust the parts that are left?”</p>
+          <p class="ans">Because deleting it was the system working as intended.
+            The bilingual machinery existed to satisfy one requirement — an English
+            query retrieving a Hebrew profile — that I had <em>assumed</em> rather
+            than confirmed, and it was the first thing I asked MAOZ about. The
+            answer removed it. That is a discovery question paying for itself, and
+            I would rather show the design getting simpler on evidence than defend
+            complexity I no longer need. What survives is not the leftovers, it is
+            the part that was always load-bearing: aspect-level embedding so one
+            strong signal is not diluted by four unrelated fields, the winning aspect
+            doubling as the explanation, token-counted length caps because Hebrew
+            tokenises expensively and character caps truncate it invisibly, and an
+            embedding-identity hash so a model swap cannot silently leave queries and
+            documents in two unrelated vector spaces. None of those depended on
+            translation. What replaces it is Hebrew-specific work that now matters
+            more, not less — prefix clitics, gazetteer expansion, and a lexical leg
+            that has no stemmer to lean on.</p>
+        </div>
+      </article>
+
+      <article class="dec">
+        <div class="dec-head"><span class="dec-area">Components</span></div>
+        <h3>The seam is at the projection builder — and it is what makes the design survive the open questions.</h3>
+        <p>Upstream of that seam, everything deals in Salesforce truth and
+          permissions. Downstream, everything deals only in already-redacted,
+          already-normalised text. The seam separates content processing; it does
+          not move authorization authority. On every request the query service
+          revalidates the viewer with Salesforce, obtains its authoritative
+          visible-record relation, and binds that relation into the local SQL / RLS
+          transaction before dense or lexical ranking starts. Every ranking stage
+          is swappable behind a single entry point, so the UI, the evaluation harness
+          and any future in-CRM panel are independent consumers of the same contract.</p>
+        <p>If Salesforce is unavailable or cannot supply the current relation with
+          acceptable availability and latency, every real-data request fails closed.
+          Synthetic, offline POC evaluation may continue, but member-facing search
+          does not launch and neither a cached ACL nor a broader role is an acceptable
+          substitute.</p>
+        <p class="rejected"><b>Rejected:</b> a microservice decomposition (correct
+          at scale, actively harmful without a platform team); a single-notebook
+          proof of concept (demos well, cannot be evaluated, permissioned or
+          maintained); and application-layer permission filtering over an
+          unrestricted candidate set — including retrieving top-k and only then
+          dropping forbidden rows — because relevant allowed records can disappear,
+          while result counts, score distributions and latency remain oracles that
+          confirm hidden records exist.</p>
+        <div class="challenge">
+          <span class="lbl">Under challenge</span>
+          <p class="obj">“This is over-engineered for a nonprofit with a few
+            thousand records.”</p>
+          <p class="ans">Judge the operational surface, not the component count:
+            two processes, one database, one repository, four scheduled jobs. Most
+            components are small modules in one package — they are named separately
+            so each decision can be challenged individually, not deployed separately.
+            And I'll make the objection stronger than you did: a competent developer
+            could ship one model, one document per person and a single page, and demo
+            the flagship moment on day three. I agree — as a <em>sequence</em>, and
+            that is what the staged plan below actually does. The disagreement is
+            only about whether the target state is written down. What kills these
+            systems is not day-one complexity; it is month-eighteen drift.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- =================== STAGES =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">03</span><span class="t">Sequence</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      The architecture above is a target state, not a first delivery. The order
+      matters more than the inventory — and the first stage can cancel the project.
+    </p>
+
+    <div class="stages">
+
+      <div class="stage">
+        <span class="when">Stage 0<br>2 weeks</span>
+        <div class="what">
+          <span class="gate">Go / no-go gate</span>
+          <h4>Demand baseline — no code at all</h4>
+          <p>Staff log every incoming “who do you know who…” request verbatim: what
+            was asked, who they named, how long naming took, and whether the
+            introduction actually happened. In parallel, MAOZ staff run a
+            <em>counting</em> query inside Salesforce and publish per-aspect fill
+            rates by sector and cohort — aggregate counts only, no profile text
+            extracted and nothing copied out of the org.</p>
+          <p class="proves"><b>Proves:</b> whether findability is the bottleneck at
+            all. If staff name candidates in under a minute and introductions die
+            downstream, the right deliverable is an intake form and a nudge — and
+            this stage cancels the project cheaply. It also produces the golden
+            evaluation set as a by-product.</p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <span class="when">Stage 1<br>2 weeks</span>
+        <div class="what">
+          <h4>Thin vertical slice</h4>
+          <p>Scoped extraction, aspect decomposition, local embeddings, exact
+            vector scan, a transparent concept vocabulary, confidence gate, extractive
+            evidence, and a facets-first UI with correct bidirectional text handling.
+            Hybrid fusion and cross-encoder reranking were both built and both cut by
+            the Stage 2 rule below — the ablations are in Part B.</p>
+          <p class="proves"><b>Proves:</b> that a Hebrew query retrieves a profile
+            sharing no word with it — <span dir="rtl" lang="he">חינוך בלתי
+            פורמלי</span> finding <span dir="rtl" lang="he">תנועות נוער</span> —
+            with visible evidence and an honest “no strong match” when it cannot.
+            This is approximately the simple system a sceptical reviewer would have
+            built first. <b>It runs on synthetic profiles.</b> Real member data
+            waits for the pilot gate below, because the deletion, restore and audit
+            paths that make real data safe do not exist until Stage 3.</p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <span class="when">Stage 2<br>2 weeks</span>
+        <div class="what">
+          <h4>Hebrew hardening and measurement</h4>
+          <p>Prefix-clitic expansion, a staff-editable acronym gazetteer, name and
+            transliteration variants, the custom Hebrew text-search configuration
+            with a stopword list, and the no-lexical-overlap probe wired in as a
+            build-failing assertion.</p>
+          <p class="proves"><b>Proves:</b> that the sophisticated version beats the
+            simple one by a measured margin — on the synthetic corpus and the public
+            Hebrew retrieval set, using paired per-query tests, because at this
+            sample size mean scores prove nothing. Anything that does not earn its
+            place here does not ship. Confirmation against MAOZ's own corpus waits
+            for the gate below; a synthetic win is a hypothesis, not a result.</p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <span class="when">Stage 3<br>2 weeks</span>
+        <div class="what">
+          <h4>Operability</h4>
+          <p>Blue/green rebuilds, daily reconciliation and the erasure path,
+            append-only audit log, rate limits, a heartbeat dead-man's switch, a
+            freshness banner in the UI, and lifecycle alerts on certificates and
+            end-of-life dates.</p>
+          <p class="proves"><b>Proves:</b> that failures become observable and
+            recoverable: a frozen sync, widened permission set or expired certificate
+            makes a noise rather than degrading quietly.</p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <span class="when">Gate</span>
+        <div class="what">
+          <span class="gate">Real member data enters here — not before</span>
+          <h4>Real-data pilot gate</h4>
+          <p>Everything above runs on synthetic profiles. Before a single real
+            member record is extracted, MAOZ must own the approved field manifest
+            and purpose, name the operations and privacy owners, complete the
+            applicable privacy and security classification, and have the deletion,
+            restore and audit paths built in Stage 3 <em>and tested</em>.</p>
+          <p class="proves"><b>Why here:</b> the safeguards that make real data safe
+            are Stage 3 deliverables, so any earlier stage claiming to prove itself
+            on real profiles would be introducing them before the controls exist.
+            Part A.3 states the same boundary, and the two must not disagree.</p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <span class="when">v1<br>conditional</span>
+        <div class="what">
+          <span class="gate">Gated on Stage 0 and the pilot gate</span>
+          <h4>Brokered introductions</h4>
+          <p>Broker queue with staff assignment, a match dossier written back to
+            Salesforce on a separate write-scoped credential, and the split into
+            staff-full and member-visible projections.</p>
+          <p class="proves"><b>Proves:</b> introductions brokered per staff-hour
+            against the Stage 0 manual baseline. This is the only number that
+            decides whether the system beats a staff member on WhatsApp.</p>
+        </div>
+      </div>
+
+      <div class="stage">
+        <span class="when">Later</span>
+        <div class="what">
+          <h4>Member-facing and in-CRM</h4>
+          <p>A search panel inside Salesforce, member self-confirmation of their
+            own profile, and per-field consent — conditional on Salesforce supplying
+            the current allowed-record relation on every request. If that cannot be
+            implemented acceptably, this stage does not launch.</p>
+          <p class="proves"><b>Proves:</b> nothing technical. This phase is gated on
+            a consent project and on per-sector coverage parity, not on engineering
+            readiness — and opening search to members may itself change MAOZ's
+            regulatory obligations.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =================== UNKNOWNS =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">04</span><span class="t">What I don't know yet</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Every one of these traces back to a question from Part A.1. Listing them is
+      not hedging — an architecture that claims no open questions is one that
+      hasn't been examined.
+    </p>
+
+    <div class="thesis" style="max-width:none">
+      <span class="mark">ASKED</span>
+      <p>
+        I put six of these to MAOZ by email during the assignment, each with the
+        assumption I would proceed on if it went unanswered. <b>Three came back.</b>
+        <b>The system is in Hebrew</b> — which retired the bilingual indexing
+        pipeline described in earlier drafts and is the single largest change to
+        this design. <b>Use standard Salesforce object and field names, adding
+        dedicated fields where needed</b> — confirming the assumed data model.
+        <b>Up to thirty minutes to present, with no page limit but a request to
+        write “focused and to the point”</b> — which is why the full component
+        inventory sits in Part A.3 and the appendix rather than here. Three
+        questions were not answered: real example searches, whether v1 is
+        staff-facing or member-facing, and whether MAOZ will run the code
+        themselves. Those remain assumptions, and they are listed below as such.
+      </p>
+    </div>
+
+    <div class="unknowns">
+      <div class="unk">
+        <span class="tag">Q1 · Data</span>
+        <p><b>Per-sector coverage, not overall sparseness, is the real risk.</b> If
+          Arab and Haredi members have systematically thinner profiles, the tool
+          under-surfaces exactly the communities MAOZ exists to bridge. I have built
+          the instrument to detect this and made it a launch gate — but not a
+          mechanism to fix it.</p>
+        <p><b>And my own fixtures quietly assume the optimistic answer.</b> Every
+          narrative field is populated on every synthetic profile, at near-uniform
+          length — <span class="code">Experience__c</span> runs 66–92 characters across
+          all eighteen. Real CRM data is not like that: partial fill, extreme length
+          variance and entries nobody has touched in three years are the normal state.
+          So Part B measures retrieval on a tidier corpus than a pilot would meet, and
+          the first thing I would ask for is per-field, per-sector fill rates. If they
+          are thin, this is a data project before it is a search project — the exact
+          fork Question 1 was written to expose, now closed against my own evidence
+          rather than left hanging.</p>
+      </div>
+      <div class="unk">
+        <span class="tag">Q2 · Consent</span>
+        <p><b>Whether existing consent covers “indexed for semantic discovery”
+          is a documents question, not an architecture question.</b> Existing notices
+          and consent may not cover semantic discovery; MAOZ and counsel must verify
+          the actual documents before a real-data pilot.</p>
+      </div>
+      <div class="unk">
+        <span class="tag">Q3 · Product</span>
+        <p><b>A staff member on WhatsApp may simply be a better product.</b> Today a
+          member gets one name, a warm introduction and a sentence of context within
+          hours. No amount of retrieval quality closes that gap — which is why
+          Stage 0 exists, and why the unit of delivery is the introduction rather
+          than the list.</p>
+      </div>
+      <div class="unk">
+        <span class="tag">Q4 · Evidence</span>
+        <p><b>Most tuning decisions here are defensible defaults, not validated
+          results.</b> The confidence threshold, the per-intent margin and aspect
+          aggregation stay unfalsifiable until a MAOZ-owned golden set exists. The two
+          knobs this originally named — fusion weights and rerank depth — no longer
+          exist, because measurement removed the components they belonged to. If the
+          ten painful searches never arrive, the first deliverable is a two-week query
+          log, not a model.</p>
+      </div>
+      <div class="unk">
+        <span class="tag">Q5 · Fairness</span>
+        <p><b>Sector diversification is itself an inference channel.</b> Probing
+          which results shift can reveal which bucket a member competes in. MAOZ's
+          sector labels may proxy or correlate with ethnic origin, political opinion
+          or religious practice. Randomised tie-breaking can reduce, not eliminate,
+          a patient adversary's inference.</p>
+      </div>
+      <div class="unk">
+        <span class="tag">Build vs buy</span>
+        <p><b>Part of my case against the platform-native option rests on unknowns
+          rather than proven failure.</b> If Salesforce confirms its search index is
+          backed by a Hebrew-capable multilingual model running in-region, a core
+          plank of my argument collapses and the native option becomes materially
+          more attractive. That is a question to put to their account team in
+          writing — and I would revisit the recommendation on a favourable answer
+          rather than defend it out of consistency.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="closing">
+    <p>
+      <strong>On the shape of this document.</strong> The full design names roughly
+      thirty components and around forty data flows; what is shown here is the
+      spine. The concrete threat/control register, verification evidence, residual
+      risks and privacy lifecycle are in
+      <a href="part-a3-information-security.html">Part A.3 — Information security
+      and authorization</a>; no separate appendix or operational runbook is claimed
+      as a deliverable.
+    </p>
+    <p>
+      Information security is treated as a first-class concern rather than a
+      section at the end: the redaction boundary, the permission predicate inside
+      the scan, per-request Salesforce revalidation, and the rule that no hosted or
+      general-purpose instruction-following LLM receives profile text are
+      architectural choices, not controls added afterwards. <strong>The linked
+      Part A.3 develops them in full.</strong>
+    </p>
+    <p>
+      <strong>On the claims in this document.</strong> Every load-bearing technical
+      assertion here — model licences and context limits, Postgres and pgvector
+      behaviour, the cross-lingual retrieval literature, Salesforce API semantics
+      and the Israeli privacy regime — was checked against primary sources before
+      being written down. Three claims did not survive that check and are corrected
+      above rather than quietly dropped: the argument that Hebrew forces
+      self-hosting, the description of language bias as a single embedding
+      “direction”, and the latency of exact vector search inside Postgres. Figures
+      I could not verify were removed rather than softened.
+    </p>
+    <p>
+      <strong>Part B fed evidence back into the design.</strong> A fully dynamic
+      8-bit export changed retrieval materially and was replaced by a higher-fidelity
+      weight-only export; the proposed reranker worsened the flagship result and was
+      omitted; and a versioned, staff-owned concept vocabulary was added as a visible
+      bridge rather than hiding query-specific rules in code. These are local findings
+      on synthetic fixtures, reproducible with <code>scripts/evaluate.py</code>, not
+      claims of general model quality.
+    </p>
+  </footer>
+
+</div>

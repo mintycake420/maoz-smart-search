@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Semantic Search POC — MAOZ Smart Search</title>
+
+  <style>
+    :root {
+      --paper:   #F3F5F5;
+      --surface: #FFFFFF;
+      --ink:     #14262A;
+      --body:    #33474B;
+      --muted:   #6A7E81;
+      --rule:    #DBE3E3;
+      --rule-hi: #C3D0D1;
+      --a:       #1C5A67;
+      --b:       #8A5714;
+      --a-soft:  #E6EFF1;
+      --b-soft:  #F5ECDC;
+
+      --f-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+      --f-body: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --f-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+      --page: 66rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #0D1618; --surface: #142124; --ink: #E9EFEF; --body: #B7C7C9;
+        --muted: #7B8F91; --rule: #23373B; --rule-hi: #31494E;
+        --a: #77BCCA; --b: #DFAA53; --a-soft: #112E35; --b-soft: #2A2211;
+      }
+    }
+    :root[data-theme="dark"] {
+      --paper: #0D1618; --surface: #142124; --ink: #E9EFEF; --body: #B7C7C9;
+      --muted: #7B8F91; --rule: #23373B; --rule-hi: #31494E;
+      --a: #77BCCA; --b: #DFAA53; --a-soft: #112E35; --b-soft: #2A2211;
+    }
+    :root[data-theme="light"] {
+      --paper: #F3F5F5; --surface: #FFFFFF; --ink: #14262A; --body: #33474B;
+      --muted: #6A7E81; --rule: #DBE3E3; --rule-hi: #C3D0D1;
+      --a: #1C5A67; --b: #8A5714; --a-soft: #E6EFF1; --b-soft: #F5ECDC;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--paper); }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--body);
+      font-family: var(--f-body);
+      line-height: 1.58;
+      -webkit-font-smoothing: antialiased;
+    }
+    p, h1, h2, h3, h4, ul, ol, figure, table { margin: 0; }
+    a { color: var(--a); text-underline-offset: 0.18em; }
+    code, .code {
+      font-family: var(--f-mono);
+      font-size: 0.84em;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      padding: 0.05rem 0.28rem;
+    }
+    [dir="rtl"] { font-family: var(--f-body); }
+
+    .wrap {
+      max-width: var(--page);
+      margin-inline: auto;
+      padding: clamp(2rem, 5vw, 4.5rem) clamp(1.1rem, 4vw, 2.5rem) 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(2.75rem, 5vw, 4.25rem);
+    }
+    .eyebrow {
+      font-family: var(--f-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ---------- masthead ---------- */
+
+    .masthead {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+      border-bottom: 1px solid var(--rule-hi);
+      padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+    }
+    .masthead h1 {
+      font-family: var(--f-display);
+      font-weight: 400;
+      font-size: clamp(1.9rem, 4.4vw, 2.75rem);
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      text-wrap: balance;
+      max-width: 23ch;
+    }
+    .masthead h1 em { font-style: italic; color: var(--a); }
+    .standfirst { max-width: 41rem; font-size: 1.05rem; }
+    .thesis {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.9rem;
+      align-items: start;
+      max-width: 50rem;
+      padding: 1.05rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-left: 2px solid var(--a);
+      font-size: 0.93rem;
+    }
+    .thesis .mark {
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: var(--a);
+      padding-top: 0.3rem;
+    }
+    .run {
+      align-self: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.72rem 0.9rem;
+      border: 1px solid var(--rule-hi);
+      background: var(--surface);
+    }
+    .run .label {
+      font-family: var(--f-mono);
+      color: var(--muted);
+      font-size: 0.63rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .run code { color: var(--ink); font-size: 0.78rem; }
+
+    /* ---------- section shell ---------- */
+
+    .sec { display: flex; flex-direction: column; gap: 1.5rem; }
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.6rem;
+    }
+    .sec-head .n {
+      font-family: var(--f-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--a);
+      font-variant-numeric: tabular-nums;
+    }
+    .sec-head .t {
+      font-family: var(--f-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .sec-head .fill { flex: 1; height: 1px; background: var(--rule); }
+    .sec-intro {
+      font-family: var(--f-display);
+      font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+      line-height: 1.45;
+      color: var(--ink);
+      max-width: 46rem;
+      text-wrap: pretty;
+    }
+
+    /* ---------- checklist trace ---------- */
+
+    .trace-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+    .trace-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 1rem 1.05rem 1.1rem;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+    }
+    .trace-card:nth-child(1), .trace-card:nth-child(3) { border-top: 2px solid var(--a); }
+    .trace-card:nth-child(2) { border-top: 2px solid var(--b); }
+    .trace-id {
+      font-family: var(--f-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+    .trace-card:nth-child(1) .trace-id,
+    .trace-card:nth-child(3) .trace-id { color: var(--a); }
+    .trace-card:nth-child(2) .trace-id { color: var(--b); }
+    .trace-card h3 {
+      color: var(--ink);
+      font-family: var(--f-display);
+      font-weight: 400;
+      font-size: 1.05rem;
+      line-height: 1.35;
+    }
+    .trace-card p { font-size: 0.86rem; }
+    .status {
+      margin-top: auto;
+      align-self: flex-start;
+      font-family: var(--f-mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--b);
+      background: var(--b-soft);
+      padding: 0.18rem 0.4rem;
+    }
+
+    /* ---------- mechanism ---------- */
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    .step {
+      position: relative;
+      min-height: 9.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.42rem;
+      padding: 0.9rem 0.9rem 1rem;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+    }
+    .step:nth-child(-n+4) { border-top: 2px solid var(--a); }
+    .step:nth-child(n+5) { border-top: 2px solid var(--b); }
+    .step .num {
+      font-family: var(--f-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    .step h3 { color: var(--ink); font-size: 0.9rem; line-height: 1.35; }
+    .step p { color: var(--muted); font-size: 0.76rem; line-height: 1.48; }
+    .mechanism-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.8rem;
+      align-items: start;
+      padding: 0.9rem 1rem;
+      background: var(--a-soft);
+      border-left: 2px solid var(--a);
+      font-size: 0.87rem;
+    }
+    .mechanism-note .label {
+      color: var(--a);
+      font-family: var(--f-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding-top: 0.18rem;
+    }
+
+    /* ---------- aspects ---------- */
+
+    .aspect-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+    .aspect {
+      display: grid;
+      grid-template-columns: 7.5rem 1fr;
+      gap: 0.3rem 0.85rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+    }
+    .aspect:nth-child(1), .aspect:nth-child(4) { border-left: 2px solid var(--a); }
+    .aspect:nth-child(2), .aspect:nth-child(3) { border-left: 2px solid var(--b); }
+    .aspect h3 { color: var(--ink); font-size: 0.88rem; }
+    .aspect .kind {
+      font-family: var(--f-mono);
+      font-size: 0.64rem;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+    .aspect p { grid-column: 2; font-size: 0.81rem; }
+    .provenance {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid var(--rule-hi);
+      background: var(--surface);
+    }
+    .prov-item { padding: 0.85rem 1rem; }
+    .prov-item + .prov-item { border-left: 1px solid var(--rule); }
+    .prov-item h4 {
+      color: var(--ink);
+      font-family: var(--f-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+    .prov-item p { font-size: 0.79rem; }
+
+    /* ---------- demos ---------- */
+
+    .demo-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+    .demo {
+      display: grid;
+      grid-template-columns: 10rem 1fr 12.5rem;
+      gap: 1rem;
+      align-items: start;
+      padding: 1.05rem 1.1rem;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+    }
+    .demo:nth-child(1), .demo:nth-child(3) { border-left: 2px solid var(--a); }
+    .demo:nth-child(2) { border-left: 2px solid var(--b); }
+    .demo .beat {
+      font-family: var(--f-mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .demo-main { display: flex; flex-direction: column; gap: 0.45rem; }
+    .demo h3 {
+      color: var(--ink);
+      font-family: var(--f-display);
+      font-size: 1.05rem;
+      font-weight: 400;
+    }
+    .demo p { font-size: 0.84rem; }
+    .he-query {
+      align-self: flex-start;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      padding: 0.38rem 0.55rem;
+      font-size: 0.92rem;
+    }
+    .measure {
+      font-family: var(--f-mono);
+      font-size: 0.63rem;
+      line-height: 1.45;
+      color: var(--b);
+      background: var(--b-soft);
+      border: 1px solid var(--rule);
+      padding: 0.55rem 0.6rem;
+      overflow-wrap: anywhere;
+    }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--rule); }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); }
+    th, td {
+      padding: 0.66rem 0.75rem;
+      border-bottom: 1px solid var(--rule);
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.79rem;
+    }
+    th {
+      color: var(--muted);
+      font-family: var(--f-mono);
+      font-size: 0.61rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    tr:last-child td { border-bottom: 0; }
+    td:last-child { font-family: var(--f-mono); color: var(--b); }
+    .evaluation-note { font-size: 0.82rem; color: var(--muted); max-width: 48rem; }
+
+    /* ---------- contracts and boundaries ---------- */
+
+    .contract-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .contract {
+      padding: 1.05rem 1.1rem;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-top: 2px solid var(--a);
+    }
+    .contract:nth-child(2) { border-top-color: var(--b); }
+    .contract h3 {
+      font-family: var(--f-display);
+      font-weight: 400;
+      font-size: 1.08rem;
+      color: var(--ink);
+      margin-bottom: 0.55rem;
+    }
+    .contract ul, .limits ul {
+      padding-left: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .contract li, .limits li { font-size: 0.82rem; }
+    .identity {
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--rule-hi);
+      background: var(--surface);
+    }
+    .identity h3 { color: var(--ink); font-size: 0.9rem; margin-bottom: 0.45rem; }
+    .identity p { font-size: 0.84rem; }
+    .identity strong { color: var(--ink); }
+
+    /* ---------- deviations and files ---------- */
+
+    .boundary-table td:first-child { color: var(--ink); font-weight: 600; width: 31%; }
+    .boundary-table td:last-child { font-family: var(--f-body); color: var(--body); }
+    .limits {
+      display: grid;
+      grid-template-columns: 8rem 1fr;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      border-left: 2px solid var(--b);
+      background: var(--b-soft);
+    }
+    .limits .label {
+      color: var(--b);
+      font-family: var(--f-mono);
+      font-size: 0.63rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding-top: 0.18rem;
+    }
+    .source-map {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem 1.5rem;
+    }
+    .source-item {
+      display: grid;
+      grid-template-columns: minmax(9rem, 0.9fr) 1.1fr;
+      gap: 0.75rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .source-item code { align-self: start; overflow-wrap: anywhere; }
+    .source-item p { font-size: 0.77rem; }
+    .commands {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .command {
+      padding: 0.85rem 0.95rem;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+    }
+    .command .label {
+      display: block;
+      color: var(--muted);
+      font-family: var(--f-mono);
+      font-size: 0.61rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.42rem;
+    }
+    .command code { display: block; overflow-wrap: anywhere; line-height: 1.5; }
+
+    /* ---------- disclosure and footer ---------- */
+
+    .disclosure {
+      display: grid;
+      grid-template-columns: 9rem 1fr;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+    }
+    .disclosure .label {
+      color: var(--a);
+      font-family: var(--f-mono);
+      font-size: 0.63rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .disclosure p { font-size: 0.84rem; }
+    .closing {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      max-width: 48rem;
+      border-top: 1px solid var(--rule-hi);
+      padding-top: 1.65rem;
+    }
+    .closing p { font-size: 0.86rem; }
+    .closing strong { color: var(--ink); }
+
+    /* ---------- responsive ---------- */
+
+    @media (max-width: 52rem) {
+      .trace-grid, .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .demo { grid-template-columns: 7.5rem 1fr; }
+      .demo .measure { grid-column: 2; }
+      .source-map { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 38rem) {
+      .trace-grid, .flow, .aspect-grid, .contract-grid, .commands { grid-template-columns: 1fr; }
+      .provenance { grid-template-columns: 1fr; }
+      .prov-item + .prov-item { border-left: 0; border-top: 1px solid var(--rule); }
+      .demo, .limits, .disclosure { grid-template-columns: 1fr; }
+      .demo .measure { grid-column: 1; }
+      .aspect { grid-template-columns: 1fr; }
+      .aspect p { grid-column: 1; }
+      .source-item { grid-template-columns: 1fr; }
+    }
+
+    /* ---------- print ---------- */
+
+    @page { size: A4; margin: 12mm; }
+    @media print {
+      :root,
+      :root[data-theme="dark"],
+      :root[data-theme="light"] {
+        --paper: #FFFFFF; --surface: #FFFFFF; --ink: #14262A; --body: #33474B;
+        --muted: #5D7073; --rule: #D2DCDD; --rule-hi: #B9C8CA;
+        --a: #1C5A67; --b: #8A5714; --a-soft: #E6EFF1; --b-soft: #F5ECDC;
+      }
+      body { font-size: 9.5pt; }
+      .wrap { max-width: none; padding: 0; gap: 1.6rem; }
+      .masthead { padding-bottom: 1.3rem; }
+      .sec { gap: 0.9rem; }
+      .trace-card, .step, .aspect, .provenance, .demo, .contract, .identity,
+      .limits, .source-item, .command, .disclosure, tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .flow { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; }
+      .step { min-height: 8rem; padding: 0.6rem; }
+      .step p { font-size: 7.2pt; }
+      .demo { grid-template-columns: 8rem 1fr 10rem; }
+      .demo .measure { grid-column: auto; }
+      a { color: var(--a); text-decoration: none; }
+    }
+  </style>
+</head>
+
+<body>
+<main class="wrap">
+
+  <header class="masthead">
+    <span class="eyebrow">MAOZ · Smart Search · Part B</span>
+    <h1>A semantic match should be <em>visible, local and falsifiable</em></h1>
+    <p class="standfirst">
+      This POC turns synthetic Salesforce-shaped profiles into four Hebrew search
+      aspects, ranks them with exact dense retrieval and a transparent concept
+      vocabulary, cites the source span that carried the match, and can decline to
+      return a weak list. A BM25 leg survives as a confidence-gate opener and a
+      diagnostic — an ablation measured its ranking contribution at zero, so it does
+      not rank.
+    </p>
+    <div class="thesis">
+      <span class="mark">CLAIM</span>
+      <p>
+        The assignment’s decisive moment is not ten plausible names. It is one
+        testable bridge: a query for
+        <span dir="rtl" lang="he">חינוך בלתי פורמלי</span> should find evidence about
+        <span dir="rtl" lang="he">תנועות נוער</span> even though the phrases share no
+        word. Raw FP32 and final quantized BGE-M3 both placed the target second, so
+        the final implementation makes that miss visible and adds a transparent,
+        staff-owned concept bridge. It keeps exact terms in a separate Hebrew-aware
+        lexical leg, exposes which source field won, and records the failed alternatives
+        rather than attributing the final result to the model alone.
+      </p>
+    </div>
+    <div class="run">
+      <span class="label">Prepared checkout</span>
+      <code>python -m maoz_search</code>
+      <span>Hebrew RTL UI · loopback only by default</span>
+    </div>
+  </header>
+
+  <!-- =================== DELIVERABLE TRACE =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">01</span><span class="t">What Part B delivers</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Three checklist items, three concrete artifacts. “Working” is backed by a fresh,
+      network-blocked acceptance run over the exact prepared checkout, while its
+      synthetic scope remains explicit.
+    </p>
+
+    <div class="trace-grid">
+      <article class="trace-card">
+        <span class="trace-id">B.1 · Mechanism</span>
+        <h3>Importable semantic search plus a local demo</h3>
+        <p><code>SearchEngine</code> is the reviewable API; <code>python -m maoz_search</code>
+          launches the same engine behind a Hebrew, RTL Flask UI.</p>
+        <span class="status">Implemented · acceptance run passed</span>
+      </article>
+      <article class="trace-card">
+        <span class="trace-id">B.2 · Source</span>
+        <h3>The whole retrieval path is attached</h3>
+        <p>Validation, projection, normalisation, local encoding, exact retrieval,
+          the BM25 gate, evidence, web UI, synthetic fixtures and tests are in this
+          repository — as is the ablation that removed the fusion leg.</p>
+        <span class="status">Source mapped below</span>
+      </article>
+      <article class="trace-card">
+        <span class="trace-id">B.3 · Explanation</span>
+        <h3>The compromises are part of the deliverable</h3>
+        <p>This page explains the mechanism and limitations. The README carries the
+          one-command run, API, offline contract, tests and artifact rebuild procedure.</p>
+        <span class="status">Self-contained · printable</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- =================== MECHANISM =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">02</span><span class="t">The implemented path</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      The original query is the only vector computed during search. Seventy-two
+      profile-aspect vectors, source spans and approved concept phrases are prepared
+      once, shipped with an identity manifest, and scanned exactly inside the eligible
+      relation.
+    </p>
+
+    <div class="flow" aria-label="Implemented POC data flow">
+      <article class="step">
+        <span class="num">01 · Fixture</span>
+        <h3>Validate</h3>
+        <p>Synthetic Salesforce-style Contact JSON only; an explicit marker and
+          synthetic ID prefix are mandatory.</p>
+      </article>
+      <article class="step">
+        <span class="num">02 · Projection</span>
+        <h3>Split into four aspects</h3>
+        <p>Keep source field and provenance beside each span; restricted fields never
+          enter the aspect contract.</p>
+      </article>
+      <article class="step">
+        <span class="num">03 · Preparation</span>
+        <h3>Normalise and embed</h3>
+        <p>Conservative Hebrew normalisation; local BGE-M3 creates profile, source and
+          staff-owned concept-phrase vectors in an explicit build step.</p>
+      </article>
+      <article class="step">
+        <span class="num">04 · Load</span>
+        <h3>Verify artifacts</h3>
+        <p>Check corpus, golden-query, gazetteer, projection, concept-vocabulary and
+          vector-file hashes, plus aspect identity/order, vector shape, finite values,
+          and encoder identity before use.</p>
+      </article>
+      <article class="step">
+        <span class="num">05 · Query</span>
+        <h3>Scope, bridge, encode locally</h3>
+        <p>Apply caller scope and hard filters, match explicit concept triggers, then
+          encode the original query with the repository-local ONNX model.</p>
+      </article>
+      <article class="step">
+        <span class="num">06 · Retrieve</span>
+        <h3>Exact dense, ranked alone</h3>
+        <p>NumPy takes the best cosine across the live query and approved concept
+          phrases. Candidate-scoped BM25 still runs over exact terms, clitics and narrow
+          aliases, but only to open the confidence gate on an exact match and to record
+          a diagnostic — it does not rank.</p>
+      </article>
+      <article class="step">
+        <span class="num">07 · Decide</span>
+        <h3>Aggregate, then abstain</h3>
+        <p>One winning aspect per person, then a synthetic-only dense threshold that may
+          return no result. Weighted reciprocal-rank fusion used to sit here; an ablation
+          across the golden set measured its contribution at zero and it was removed, so
+          gate, tier, score and evidence now all read from a single ranking.</p>
+      </article>
+      <article class="step">
+        <span class="num">08 · Explain</span>
+        <h3>Return a source span</h3>
+        <p>After rank and gate are fixed, select an original field span, attach
+          provenance, hide raw scores and render without generated summaries.</p>
+      </article>
+    </div>
+
+    <div class="mechanism-note">
+      <span class="label">Visible bridge, no RAG answer</span>
+      <p><code>config/concepts.json</code> maps concepts to phrases, never people or
+        profile IDs, and leaves lexical ranking unchanged. There is no
+        instruction-following LLM or generated biography. Evidence is copied from the
+        synthetic source field; its post-ranking selection and its highlight never
+        feed back into rank or the confidence gate. The highlight is the concept
+        phrase that bridged the query, so the explanation on screen names the same
+        mechanism that produced the match.</p>
+    </div>
+  </section>
+
+  <!-- =================== ASPECTS =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">03</span><span class="t">The unit of retrieval</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      One profile is not one blob. Four aspects stop a strong, relevant signal from
+      being diluted by unrelated fields; the winning aspect becomes a compact,
+      inspectable explanation.
+    </p>
+
+    <div class="aspect-grid">
+      <article class="aspect">
+        <span class="kind">role_org</span>
+        <h3><span dir="rtl" lang="he">תפקיד וארגון</span></h3>
+        <p>Title, organisation and sector.</p>
+      </article>
+      <article class="aspect">
+        <span class="kind">trajectory</span>
+        <h3><span dir="rtl" lang="he">ניסיון</span></h3>
+        <p>Structured experience and profile description.</p>
+      </article>
+      <article class="aspect">
+        <span class="kind">interests_values</span>
+        <h3><span dir="rtl" lang="he">תחומי עניין וערכים</span></h3>
+        <p>Areas of activity, interests and values.</p>
+      </article>
+      <article class="aspect">
+        <span class="kind">affiliations</span>
+        <h3><span dir="rtl" lang="he">שיוכים ורשתות</span></h3>
+        <p>Affiliations and cohort.</p>
+      </article>
+    </div>
+
+    <div class="provenance">
+      <div class="prov-item">
+        <h4>Dense text</h4>
+        <p>Every allowed span, including self-description, can contribute semantic
+          meaning.</p>
+      </div>
+      <div class="prov-item">
+        <h4>Lexical text</h4>
+        <p>Self-authored spans are excluded, so repetition cannot purchase a BM25
+          boost.</p>
+      </div>
+      <div class="prov-item">
+        <h4>Evidence</h4>
+        <p>Original field boundaries and provenance survive projection; the response
+          cites one verbatim span chosen only after rank and gate are fixed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== DEMO + MEASUREMENT =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">04</span><span class="t">Three demo beats, three failure conditions</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Each beat failed visibly during development, then was rerun against the exact
+      shipped bundle with outbound network access blocked. The result is narrow and
+      reproducible — not a benchmark smuggled out of a synthetic corpus.
+    </p>
+
+    <div class="demo-stack">
+      <article class="demo">
+        <span class="beat">Beat 1 · Meaning</span>
+        <div class="demo-main">
+          <h3>The flagship no-overlap match</h3>
+          <span class="he-query" dir="rtl" lang="he">חינוך בלתי פורמלי</span>
+          <p>Observed: the transparent concept bridge ranks the synthetic
+            youth-movement profile first and returns <code>Experience__c</code> with
+            <span dir="rtl" lang="he">תנועות נוער</span>. The complete target record and
+            query share no canonical token.</p>
+          <p>The profile rank and gate are already fixed before evidence is chosen.
+            The highlighted phrase comes from the concept bridge that fired, so it is
+            reviewable in <code>config/concepts.json</code>. An earlier version read it
+            from <code>data/golden_queries.json</code> and described it as display-only
+            metadata. That description was accurate about ranking and misleading about
+            everything else: this query is deliberately zero-overlap, so the surface
+            fallback could never have produced the phrase, and the demo's most visible
+            element was being read out of the evaluation set's own answer. The golden
+            set no longer takes any part in producing a result.</p>
+        </div>
+        <span class="measure">OBSERVED<br>final target rank 1</span>
+      </article>
+
+      <article class="demo">
+        <span class="beat">Beat 2 · Generalisation</span>
+        <div class="demo-main">
+          <h3>Add a person live, then find them</h3>
+          <p>The evaluator invents a person in the UI — role, organisation, experience,
+            interests — and the demo indexes them on the spot: the same fail-closed
+            synthetic validation, the same four-aspect projection, the same local
+            encoder, held in memory only and gone on restart. Their own paraphrase of
+            the need either retrieves that person with a verbatim evidence span, or
+            abstains.</p>
+          <p>Nothing on this path is pre-computed, which is the point: it answers
+            <em>"does this only work on fixtures you authored?"</em> with a test the
+            evaluator controls. One caveat said out loud: retrieval is by content, not
+            by name — person names are deliberately not embedded, so searching the new
+            person's name abstains. This beat replaced a frozen MiniLM/FP32 model
+            comparison on 2026-07-21; the superseded measurement (FP32 rank 2, MiniLM
+            rank 11 on the flagship) is retained in the decision trail below, as a
+            recorded result rather than a reproducible one — its artifacts were removed
+            along with the feature.</p>
+        </div>
+        <span class="measure">LIVE<br>indexed in seconds · no answer key</span>
+      </article>
+
+      <article class="demo">
+        <span class="beat">Beat 3 · Trust</span>
+        <div class="demo-main">
+          <h3>Refuse a weak list</h3>
+          <span class="he-query" dir="rtl" lang="he">תכנון מנועי יונים לחלל עמוק</span>
+          <p>Observed: the final bundle returns <code>no_strong_match</code> with zero
+            results. The network-blocked acceptance run abstains on all seven
+            out-of-domain probes, one of them deliberately health-adjacent because the
+            corpus carries health-and-welfare profiles and a near-domain miss is the
+            harder case. This verifies the mechanism on authored negatives, not
+            real-world calibration.</p>
+        </div>
+        <span class="measure">OBSERVED<br>abstain · 0 results</span>
+      </article>
+    </div>
+
+    <div class="table-wrap">
+      <table aria-label="Measured flagship decision trail">
+        <thead>
+          <tr><th>Frozen flagship variant</th><th>Target rank</th><th>Decision</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Official BGE-M3 FP32 · raw dense</td>
+            <td>2</td>
+            <td>Keep as the honest reference artifact; the model alone missed rank 1</td>
+          </tr>
+          <tr>
+            <td>Initial fully dynamic INT8</td>
+            <td>6</td>
+            <td>Reject; controlled single-versus-batch measurement isolated quantization error, not batch dependence</td>
+          </tr>
+          <tr>
+            <td>Final weight-only 8-bit BGE</td>
+            <td>2</td>
+            <td>Ship; recovered the FP32 ordering on this query</td>
+          </tr>
+          <tr>
+            <td>Paired BGE cross-encoder reranker</td>
+            <td>4</td>
+            <td>Reject; worsened the measured ordering</td>
+          </tr>
+          <tr>
+            <td>Staff-owned concept vocabulary + final BGE</td>
+            <td>1</td>
+            <td>Ship; explicit concept-to-phrase bridge, with no person/profile ID</td>
+          </tr>
+          <tr>
+            <td>English-default MiniLM control</td>
+            <td>11</td>
+            <td>Comparison only; never primary ranking</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sec-intro">These ranks were measured on 2026-07-20 against the corpus as it
+      then stood. On 2026-07-21 the fixture texts were renamed to realistic fictional
+      names, the synthetic boilerplate was stripped, and the artifacts were resealed —
+      and the FP32 and MiniLM comparison artifacts were removed with the frozen
+      comparison feature, so those two rows are a recorded measurement rather than a
+      reproducible one. The quantization and reranker decisions they justified are
+      unchanged; the shipped bundle's current behaviour is re-verified on every
+      <code>scripts/evaluate.py</code> run.</p>
+
+    <div class="mechanism-note">
+      <span class="label">What a held-out measurement changed</span>
+      <p>Every query in the table above, and every semantic intent in the acceptance
+        set, is configured in <code>config/concepts.json</code>. Passing them showed the
+        system worked on its own configuration. To find out whether that meant anything,
+        eleven Hebrew queries were written against the profiles that have
+        <em>no</em> concept entry, and the dense leg alone was measured against the
+        assembled pipeline.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table aria-label="Held-out ablation before the review fixes">
+        <thead>
+          <tr><th>Configuration</th><th>Intended profile at rank 1</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>BGE-M3 dense leg alone</td><td>9 / 11</td></tr>
+          <tr><td>Pipeline before the fixes</td><td>4 / 11 — 2 abstained, 5 ranked someone else first</td></tr>
+          <tr><td>Pipeline after the fixes</td><td>9 / 11</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mechanism-note">
+      <span class="label">The retrieval model was not the weak part</span>
+      <p>The machinery around it was, in three specific ways. The confidence gate had
+        been calibrated on concept-<em>expanded</em> scores and applied to un-expanded
+        ones; expansion lifts a covered query by roughly +0.09..+0.13 and never lifts an
+        uncovered one, so correct answers sitting at dense rank 1 were discarded as
+        <span dir="rtl" lang="he">לא נמצאה התאמה חזקה</span>. The lexical gate treated
+        any term appearing in a quarter of the corpus as rare — on 72 aspects, nearly
+        every term — so two incidental words let an ordinary sentence override the dense
+        gate, and because a lexical hit also forced the
+        <span dir="rtl" lang="he">חזקה</span> label, profiles scoring 0.33 were shown to
+        staff as strong matches while the intended profile was filtered out. And the
+        fixed result floor could not prevent padding, because a firing concept lifts
+        every loosely related profile at once.</p>
+      <p>All three are fixed, each with a regression test, and the calibration script
+        now fails the build if every calibration positive is concept-covered. The
+        pipeline now reaches the dense leg's own ceiling rather than falling below it.
+        It does not beat it: a later ablation across the whole golden set measured the
+        BM25 fusion leg's ranking contribution at zero — it swapped which held-out
+        query it got right rather than adding one — and the leg was removed on Part
+        A.2's own Stage 2 rule. Two of the eleven queries then became calibration
+        positives, so
+        that the threshold has un-expanded examples to fit against; the evaluator's
+        7/9 covers the nine that remain genuinely held out. The honest reading is that
+        this system's added machinery was
+        subtracting value until it was measured — which is the argument for measuring
+        one's own additions, not an argument that the additions were unnecessary: the
+        concept bridge is still what moves the required flagship example from rank 2 to
+        rank 1.</p>
+    </div>
+
+    <div class="mechanism-note">
+      <span class="label">Final evaluator</span>
+      <p>With outbound network access blocked: <strong>8/8</strong> acceptance queries
+        placed the intended profile first, <strong>7/7</strong> acceptance out-of-domain
+        queries abstained, and <strong>7/9</strong> held-out queries ranked the intended
+        profile first. Separately and <em>not</em> as evidence, the 9 calibration
+        examples that selected the threshold still behave (4/4 retained, 5/5 abstained).
+        On an Intel i5-9400F, three consecutive five-run passes had warm
+        flagship medians of 0.806, 0.812 and 1.009 seconds, with individual
+        observations between 0.738 and 1.260 seconds. Ad-hoc loops on a loaded
+        machine reached 2.25 seconds, so this is a load-dependent range, not a fixed
+        figure.</p>
+    </div>
+    <p class="evaluation-note">
+      The three groups mean different things and are deliberately not added together.
+      Calibration is the weakest: those examples <em>selected</em> the threshold, so
+      reporting them as a result is circular, and an earlier version of this page did
+      exactly that — it counted 12/12 and 6/6 without noting that 4 and 5 of those were
+      fitted examples. Acceptance is independent of the fit, but every semantic intent
+      in it is present in <code>config/concepts.json</code>, so it remains a regression
+      check on this system's own configuration. Only the held-out set — queries written
+      against profiles with no concept entry, and excluded from threshold fitting —
+      speaks to generalization, and it is still nine authored queries over eighteen
+      authored profiles. Genuine evaluation awaits MAOZ-owned query logs and relevance
+      judgments. These ranks and timings describe this frozen corpus, ~603 MB local
+      bundle and CPU only; they do not estimate production relevance, fairness, Hebrew
+      quality or latency elsewhere.
+    </p>
+
+    <div class="mechanism-note">
+      <span class="label">The one measurement that is not circular</span>
+      <p>Everything above shares an author with <code>config/concepts.json</code>.
+        <code>scripts/evaluate_judged.py</code> does not: 23 Hebrew queries with graded
+        relevance judgments over the 20-profile companion corpus, written without
+        reading the concept vocabulary, split dev (5) / acceptance (13) / abstention (5).
+        The load-bearing figure: <strong>all 18 judged primaries sit at un-gated dense
+        rank 1 — 18/18, enforced by the evaluator's exit code — and the concept
+        vocabulary fired on none of the 23 queries.</strong> That is the encoder working
+        unaided on queries written by someone who had not seen the answer key — and it
+        doubles as proof the set is genuinely independent, because queries written while
+        reading the vocabulary would have triggered something.</p>
+      <p>The gated metrics are lower than the ranking: <strong>acceptance MRR 0.769,
+        Hit@3 10/13, nDCG@5 0.655, Recall@5 0.577</strong>, with <strong>5/5</strong>
+        correct abstentions. On the first (2026-07-20) run they were MRR 0.923 /
+        Hit@3 12/13 — the drop has a single verified cause and it is the finding, not a
+        regression to hide. This harness deliberately applies the runtime corpus's
+        fitted confidence gate to a corpus it was never calibrated on. When the runtime
+        corpus was renamed and resealed on 2026-07-21, its embeddings sharpened and the
+        fitted gate rose from 0.474 to 0.495 — and <code>dev_04</code>,
+        <code>acc_03</code> and <code>acc_05</code> (scores 0.477–0.480) joined the
+        original <code>acc_06</code> (0.389) as correct-at-rank-1 answers the gate
+        abstains on. Nothing was tuned in response: <strong>a single absolute threshold
+        does not transfer across corpora</strong>, so per-corpus calibration is a v1
+        requirement, not a refinement. And Recall@5 has a second cause — every
+        multi-relevant query that does answer returns the primary and drops the grade-2
+        secondary, so the per-intent margin that suppresses padding is also suppressing
+        useful secondary matches. That is a dial MAOZ may want set the other way.</p>
+    </div>
+
+    <div class="mechanism-note">
+      <span class="label">The concept bridge has to re-earn its place</span>
+      <p>It is the only remaining ranking component, so its value is re-measured on every
+        run rather than asserted once: <strong>8/8 acceptance with the bridge, 6/8
+        without</strong>, held-out equal at 7/9 because the bridge is deliberately not
+        configured for held-out intents. A separate <code>rank_only_effect</code> block
+        isolates dense rank with and without expansion, excluding the gate and the
+        lexical leg — improved on 2, unchanged on 6, regressed on 0 — because comparing
+        gated acceptance in both arms cannot distinguish a rank change from a score
+        lifted over the threshold. <code>earns_its_place</code> gates the exit code, so
+        the justification cannot quietly stop being true.</p>
+      <p>One caveat, stated before a reviewer finds it:
+        <code>test_hebrew_acronym_community_center</code> sits at rank 11 in
+        <em>both</em> arms. It passes acceptance through the lexical strong-match gate,
+        not through ranking.</p>
+    </div>
+  </section>
+
+  <!-- =================== ARTIFACT + SECURITY CONTRACT =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">05</span><span class="t">Artifact identity and security boundary</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      “Offline” means a prepared artifact, not a hidden first-run download. “Secure”
+      means a narrow local demonstration boundary, not production authorization.
+    </p>
+
+    <div class="contract-grid">
+      <article class="contract">
+        <h3>What the prepared bundle promises</h3>
+        <ul>
+          <li>Seventy-two profile-aspect vectors plus source and concept-phrase vectors
+            are precomputed; arbitrary query vectors are produced locally.</li>
+          <li>The 602,549,616-byte model/tokenizer/licence directory loads with offline
+            settings and no hosted fallback. Its 580,393,844-byte ONNX member is
+            distributed as a release asset and must be placed in that directory as a
+            setup step, never fetched at launch. A SHA-256 digest over every file in the
+            directory is verified before the graph loads, so a manually placed copy is
+            checked rather than trusted.</li>
+          <li>The final graph uses weight-only 8-bit asymmetric
+            <code>MatMulNBits</code> blocks of 128 plus int8 embedding tables under ONNX
+            Runtime CPU 1.26.0.</li>
+          <li>The manifest binds vector files to the corpus, golden queries, gazetteer,
+            projection and concept hashes, and records model identity, dimension and
+            local bundle hash.</li>
+          <li>Loader checks cover aspect order/keys, vector shapes, non-finite
+            aspect/source values and concept-phrase identity; query and profile encoder
+            identities must match.</li>
+        </ul>
+      </article>
+      <article class="contract">
+        <h3>What the local boundary enforces</h3>
+        <ul>
+          <li>Unmarked records and Contact IDs outside the synthetic namespace are
+            rejected before projection.</li>
+          <li>The server binds to loopback by default, limits request size, applies
+            restrictive browser headers and does not expose raw ranking scores.</li>
+          <li>The frontend inserts API text as text, not HTML. Returned explanations are
+            extractive source spans, not generated prose.</li>
+          <li>No profile or query text is sent to a hosted model API or an
+            instruction-following model.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="identity">
+      <h3>The identity distinction that prevents a misleading demo claim</h3>
+      <p><strong>BGE-M3 profile vectors for the sealed corpus are preset; everything
+        else is encoded live.</strong> The local encoder handles arbitrary Hebrew
+        queries, and since 2026-07-21 it also embeds evaluator-added profiles at the
+        moment they are submitted — the add-a-profile beat runs the same encoder path a
+        query does, with nothing precomputed. Approved concept phrases are preset but
+        fire only through explicit text triggers. The formerly shipped FP32/MiniLM
+        comparison vectors, which existed only for the named flagship query, were
+        removed together with the frozen comparison feature.</p>
+    </div>
+  </section>
+
+  <!-- =================== DEVIATIONS + LIMITATIONS =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">06</span><span class="t">What this POC does not prove</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      Part A is the production direction; Part B is a deliberately smaller adapter.
+      The seam is preserved, but the operational claims are not borrowed from the
+      architecture document.
+    </p>
+
+    <div class="table-wrap">
+      <table class="boundary-table" aria-label="POC deviations from production direction">
+        <thead>
+          <tr><th>Production direction</th><th>Implemented POC boundary</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Salesforce extraction, deltas and deletion</td>
+            <td>Versioned synthetic Salesforce-shaped JSON only. There is no Salesforce
+              connection and no real member data.</td>
+          </tr>
+          <tr>
+            <td>PostgreSQL + pgvector</td>
+            <td>In-process float32 NumPy exact scan and in-memory BM25. This is a
+              correctness adapter; it says nothing about PostgreSQL latency or scale.</td>
+          </tr>
+          <tr>
+            <td>Salesforce revalidation + SQL/RLS scope</td>
+            <td>The importable API accepts <code>allowed_profile_ids</code> before
+              ranking. The web demo has no identity provider or production authorization.</td>
+          </tr>
+          <tr>
+            <td>Local BGE reranker</td>
+            <td>A local experiment moved the frozen flagship target from raw-dense
+              rank 2 to rank 4. The cross-encoder was rejected and is not packaged.</td>
+          </tr>
+          <tr>
+            <td>Model-only semantic bridge</td>
+            <td>Both official FP32 and final quantized BGE ranked the required target
+              second. The POC adds a staff-owned concept-to-phrase vocabulary with no
+              people/profile IDs; MAOZ must own and review it before a pilot.</td>
+          </tr>
+          <tr>
+            <td>Operational controls</td>
+            <td>No audit ledger, reconciliation, erasure workflow, restore drill,
+              certificate lifecycle or rate-limiting service is claimed.</td>
+          </tr>
+          <tr>
+            <td>Real CRM data density</td>
+            <td>Every narrative field is populated on all eighteen fixtures at
+              near-uniform length — <code>Experience__c</code> runs 66–92 characters
+              across every profile, and the four aspects together carry about 348
+              Hebrew characters per person — 129 tokens concatenated, with the longest
+              single aspect at 59. Partial fill, extreme length variance and
+              stale entries are not modelled, so retrieval here runs on a tidier corpus
+              than a pilot would face. Per-field, per-sector fill rates from the real
+              org are the first measurement I would ask for.</td>
+          </tr>
+          <tr>
+            <td>Real relevance and confidence calibration</td>
+            <td>All examples and labels are synthetic. The confidence threshold and the
+              per-intent margin are POC defaults and must be replaced before a real-data
+              pilot. There are no fusion weights left to replace: ranking is dense-only.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="limits">
+      <span class="label">Honest limits</span>
+      <ul>
+        <li>The synthetic corpus can demonstrate a mechanism but cannot estimate
+          relevance, fairness, coverage or adoption on MAOZ profiles.</li>
+        <li>The recorded MiniLM result was a deliberately selected control, not a broad
+          Hebrew model comparison — and since 2026-07-21 it is a recorded measurement
+          only, no longer re-runnable from shipped artifacts.</li>
+        <li>A profile added live in the demo is scored against a confidence gate that
+          was calibrated on the sealed corpus, and person names are deliberately not
+          embedded — retrieval is by content, so searching an added person's name
+          abstains. Additions live in memory only and vanish on restart.</li>
+        <li>Concept-aware evidence selection and highlighting occur after rank and gate
+          and never feed back into either. Both now draw on
+          <code>config/concepts.json</code>; an earlier build drew the highlight from
+          the golden set, which is why that file is now barred from the result path
+          by a regression test.</li>
+        <li>The 8/8 acceptance result measures this system against its own concept
+          vocabulary. Only the 7/9 held-out result speaks to generalization, and nine
+          author-written queries over eighteen author-written profiles is a smoke test,
+          not an evaluation. Calibration counts are not evidence at all.</li>
+        <li>A result is gated, tiered and displayed on one aspect. An earlier build
+          tiered on the profile's best dense aspect while showing its best fused aspect,
+          which let a weaker span inherit a strong label; the two disagree for 19
+          profile/query pairs on this corpus.</li>
+        <li>Recovering the FP32 rank with weight-only quantization is one controlled
+          flagship result, not a general equivalence claim.</li>
+        <li>Manifest and loader checks catch known identity and shape drift; they are not
+          a signed software-supply-chain system.</li>
+        <li>Changing <code>--host</code> can expose the unauthenticated demo and therefore
+          leaves the claimed local boundary.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- =================== SOURCE + REPRODUCIBILITY =================== -->
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="n">07</span><span class="t">Source and reproducibility</span><span class="fill"></span>
+    </div>
+    <p class="sec-intro">
+      The review path follows the runtime path. No notebook is required to understand
+      or launch the submission.
+    </p>
+
+    <div class="source-map">
+      <div class="source-item"><code>domain.py</code><p>Synthetic fixture validation and profile boundary.</p></div>
+      <div class="source-item"><code>projection.py</code><p>Four aspects, sources and provenance-aware lexical exclusion.</p></div>
+      <div class="source-item"><code>normalization.py</code><p>Hebrew normalisation, surface tokens and cautious clitic variants.</p></div>
+      <div class="source-item"><code>concepts.py · config/concepts.json</code><p>Staff-owned trigger-to-phrase bridges with no people/profile IDs.</p></div>
+      <div class="source-item"><code>embeddings.py</code><p>Lazy, local-only ONNX encoder and injectable test encoder.</p></div>
+      <div class="source-item"><code>index.py</code><p>Corpus, golden-set, gazetteer, concept, vector-file and model identity checks plus immutable artifact loading.</p></div>
+      <div class="source-item"><code>lexical.py</code><p>Candidate-scoped BM25 with the narrow gazetteer.</p></div>
+      <div class="source-item"><code>search.py</code><p>Concept-assisted exact dense retrieval, abstention and evidence. Ranking is dense-only; the lexical leg opens the gate and reports a diagnostic.</p></div>
+      <div class="source-item"><code>web.py · templates · static</code><p>Local JSON API and Hebrew RTL screen-share UI.</p></div>
+      <div class="source-item"><code>data · config</code><p>Synthetic profiles, golden hypotheses, concept phrases and acronym aliases, sealed by the artifact manifest.</p></div>
+      <div class="source-item"><code>bge_m3_profiles.npz</code><p>Seventy-two final aspect vectors plus source-span and concept-phrase vectors. The one-query FP32 and MiniLM comparison artifacts were removed with the frozen comparison feature.</p></div>
+      <div class="source-item"><code>tests · scripts</code><p>Contract checks and the explicit artifact rebuild command.</p></div>
+    </div>
+
+    <div class="commands">
+      <div class="command">
+        <span class="label">Run the prepared POC</span>
+        <code>python -m maoz_search</code>
+      </div>
+      <div class="command">
+        <span class="label">Run contract tests</span>
+        <code>python -m pytest</code>
+      </div>
+      <div class="command">
+        <span class="label">Reproduce frozen acceptance measurements · network blocked</span>
+        <code>python scripts/evaluate.py --timing-runs 5</code>
+      </div>
+      <div class="command">
+        <span class="label">Importable entry point</span>
+        <code>from maoz_search import SearchEngine</code>
+      </div>
+      <div class="command">
+        <span class="label">Rebuild artifacts · verified revision required</span>
+        <code>python scripts/build_artifacts.py --bge-model-dir models/bge-m3-int8 --batch-size 32 --upstream-revision VERIFIED_UPSTREAM_COMMIT_SHA</code>
+      </div>
+    </div>
+
+    <div class="disclosure">
+      <span class="label">AI-use disclosure</span>
+      <p>
+        The living disclosure in <a href="part-a2-architecture.html">Part A.2</a> and
+        <a href="part-a3-information-security.html">Part A.3</a> records the use of
+        Claude Code and OpenAI Codex for authoring and engineering assistance,
+        adversarial review, implementation, revision and claim checking. The candidate
+        selected the architecture, reviewed the outputs and remains responsible for
+        the decisions. A corrected public-directory inspection is disclosed in Parts
+        A.2 and A.3; no person-level content from it is stored here, and every searchable
+        fixture remains explicitly synthetic.
+      </p>
+    </div>
+  </section>
+
+  <footer class="closing">
+    <p><strong>The launch criterion is evidence, not polish.</strong> The final prepared
+      checkout passes its network-blocked acceptance run — 8/8 at rank 1 and 7/7
+      abstentions, with the flagship among them, and with the 4 calibration positives
+      and 5 calibration negatives reported separately because the gate was fitted so
+      they pass. The rejected quantizer, the rejected reranker and the removed fusion
+      leg remain in the decision trail because the prose does not get to overrule a
+      measured miss.</p>
+    <p>The full production data flow and security controls remain in Parts A.2 and
+      A.3. This document intentionally claims only the smaller synthetic, local Part B
+      boundary implemented in the attached source.</p>
+  </footer>
+
+</main>
+</body>
+</html>
