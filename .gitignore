@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+tmp/
+
+# The encoder graph ships as a release asset, not in the repository. Once downloaded
+# into place it must stay untracked: committing it from a working tree would add
+# ~580 MB to every clone, and on Windows would write CRLF into the blob.
+models/bge-m3-int8/model.onnx

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F6F8F8">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/app.css">
+  <title>חיפוש חכם · מעוז</title>
+</head>
+<body>
+  <a class="skip-link" href="#query">דלגו לחיפוש</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">מ</span>
+        <div class="brand-text">
+          <strong>חיפוש חכם</strong>
+          <span class="brand-sub" dir="ltr">MAOZ · POC</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="button button--ghost" id="open-directory" type="button">
+          פרופילים באינדקס
+          <span class="count-badge" id="directory-count" hidden></span>
+        </button>
+        <button class="button button--outline" id="open-add-dialog" type="button">
+          <span aria-hidden="true">+</span>
+          הוספת פרופיל
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell" id="main-content">
+    <section class="hero">
+      <h1>מוצאים את האדם הנכון, <em>גם בלי אותן מילים</em></h1>
+      <p>תארו צורך או תחום — המערכת מאתרת פרופילים קרובים במשמעות ומציגה את קטע המקור שבזכותו נמצאה ההתאמה.</p>
+    </section>
+
+    <section class="search-card" aria-label="חיפוש">
+      <form id="search-form" novalidate>
+        <label class="visually-hidden" for="query">תיאור האדם או תחום העניין המבוקש</label>
+        <div class="search-row">
+          <input
+            id="query"
+            name="query"
+            type="search"
+            inputmode="search"
+            autocomplete="off"
+            required
+            maxlength="200"
+            placeholder="למשל: ניסיון בהובלת שותפויות בין־מגזריות"
+          >
+          <button class="button button--primary" id="search-button" type="submit">
+            <span class="button-label">חיפוש</span>
+          </button>
+        </div>
+        <div class="search-tools">
+          <div class="filters">
+            <label>
+              <span>מגזר</span>
+              <select id="sector-filter" name="sector">
+                <option value="">הכול</option>
+              </select>
+            </label>
+            <label>
+              <span>אזור</span>
+              <select id="region-filter" name="region">
+                <option value="">הכול</option>
+              </select>
+            </label>
+          </div>
+          <div class="examples" aria-label="דוגמאות">
+            <span>דוגמאות:</span>
+            <button type="button" class="example-chip" data-example="חינוך בלתי פורמלי">חינוך בלתי פורמלי</button>
+            <button type="button" class="example-chip" data-example="תכנון מנועי יונים לחלל עמוק">שאילתה בלי התאמה</button>
+          </div>
+        </div>
+      </form>
+      <div class="progress" id="search-progress" hidden aria-hidden="true"><span></span></div>
+    </section>
+
+    <p class="live-feedback" id="search-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+
+    <div class="added-note" id="added-note" hidden>
+      <div>
+        <strong id="added-note-name"></strong>
+        <span id="added-note-text"></span>
+      </div>
+      <button type="button" class="button button--ghost" id="added-note-search">חיפוש עכשיו</button>
+    </div>
+
+    <section class="results" id="results" aria-busy="false">
+      <div class="placeholder-state" id="initial-state">
+        <h2>שלושה דברים ששווה לנסות</h2>
+        <ol>
+          <li>חיפוש <button type="button" class="inline-link" data-example="חינוך בלתי פורמלי">חינוך בלתי פורמלי</button> — ההתאמה המובילה כלל אינה מכילה את מילות החיפוש.</li>
+          <li>הוספת אדם חדש דרך <button type="button" class="inline-link" id="open-add-dialog-inline">הוספת פרופיל</button> — ואז לחפש אותו בניסוח אחר.</li>
+          <li>שאילתה רחוקה מהתחום — המערכת תעדיף לומר שאין התאמה חזקה.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footline">
+    <p>הדגמה מקומית על נתונים בדויים בלבד · החיפוש והקידוד רצים על המחשב הזה, ללא שליחת מידע החוצה</p>
+  </footer>
+
+  <dialog class="add-dialog" id="add-dialog" aria-labelledby="add-dialog-title">
+    <form id="add-form" method="dialog" novalidate>
+      <header class="dialog-head">
+        <div>
+          <h2 id="add-dialog-title">הוספת פרופיל לאינדקס</h2>
+        <p>הפרופיל מקודד מיד באותו מנוע, ונשמר בזיכרון בלבד עד לכיבוי השרת. נא להמציא דמות — אין להזין פרטים של אדם אמיתי.</p>
+        </div>
+        <button type="button" class="dialog-close" id="close-add-dialog" aria-label="סגירה">×</button>
+      </header>
+
+      <div class="field-grid">
+        <label class="field">
+          <span>שם פרטי <b class="req" aria-hidden="true">·</b></span>
+          <input id="add-first-name" name="first_name" type="text" maxlength="60" required placeholder="יונתן">
+        </label>
+        <label class="field">
+          <span>שם משפחה <b class="req" aria-hidden="true">·</b></span>
+          <input id="add-last-name" name="last_name" type="text" maxlength="60" required placeholder="תפוחי">
+        </label>
+        <label class="field">
+          <span>תפקיד</span>
+          <input id="add-title" name="title" type="text" maxlength="300" placeholder="סמנכ&quot;ל מיזוגים ורכישות">
+        </label>
+        <label class="field">
+          <span>ארגון</span>
+          <input id="add-organisation" name="organisation" type="text" maxlength="300" placeholder="קרן צמיחה">
+        </label>
+        <label class="field">
+          <span>מגזר</span>
+          <input id="add-sector" name="sector" type="text" maxlength="60" list="sector-options"
+                 placeholder="פיננסים והשקעות" aria-describedby="sector-hint">
+          <datalist id="sector-options"></datalist>
+          <small class="field-hint" id="sector-hint">בחרו מהרשימה או הקלידו מגזר חדש — הוא יצטרף לרשימה</small>
+        </label>
+        <label class="field">
+          <span>אזור</span>
+          <input id="add-region" name="region" type="text" maxlength="60" list="region-options"
+                 placeholder="מרכז" aria-describedby="region-hint">
+          <datalist id="region-options"></datalist>
+          <small class="field-hint" id="region-hint">בחרו מהרשימה או הקלידו אזור חדש</small>
+        </label>
+        <label class="field">
+          <span>אימייל</span>
+          <input id="add-email" name="email" type="text" maxlength="60" placeholder="yonatan@example.org">
+        </label>
+        <label class="field">
+          <span>טלפון</span>
+          <input id="add-phone" name="phone" type="text" maxlength="60" placeholder="050-000-0000">
+        </label>
+        <label class="field field--wide">
+          <span>ניסיון</span>
+          <textarea id="add-experience" name="experience" maxlength="300" rows="2" placeholder="למשל: הוביל עסקאות מיזוג ורכישה בתחום הפינטק, ואלוף ארצי בבאולינג"></textarea>
+        </label>
+        <label class="field field--wide">
+          <span>תחומי פעילות</span>
+          <textarea id="add-areas" name="areas_of_activity" maxlength="300" rows="2" placeholder="למשל: ליווי סטארטאפים בשלבים מוקדמים; גיוסי הון; רגולציה פיננסית"></textarea>
+        </label>
+        <label class="field field--wide">
+          <span>תחומי עניין</span>
+          <textarea id="add-interests" name="interests" maxlength="300" rows="2" placeholder="למשל: פינטק; באולינג תחרותי; חינוך פיננסי לבני נוער"></textarea>
+        </label>
+        <details class="more-fields">
+          <summary>שדות נוספים</summary>
+          <div class="field-grid">
+            <label class="field field--wide">
+              <span>ערכים</span>
+              <input id="add-values" name="values" type="text" maxlength="300" placeholder="למשל: הוגנות; שקיפות; אחריות">
+            </label>
+            <label class="field field--wide">
+              <span>השתייכויות ורשתות</span>
+              <input id="add-affiliations" name="affiliations" type="text" maxlength="300" placeholder="למשל: פורום מנהלי השקעות">
+            </label>
+            <label class="field field--wide">
+              <span>תיאור חופשי — במילותיו של החבר/ה</span>
+              <textarea id="add-description" name="description" maxlength="300" rows="2" placeholder="למשל: אוהב לחבר בין אנשים ורעיונות משני עולמות שלא נפגשים"></textarea>
+            </label>
+            <label class="field">
+              <span>מחזור</span>
+              <input id="add-cohort" name="cohort" type="text" maxlength="60" placeholder="למשל: מחזור ג׳">
+            </label>
+          </div>
+        </details>
+      </div>
+
+      <p class="dialog-error" id="add-error" role="alert" hidden></p>
+
+      <footer class="dialog-foot">
+        <span class="dialog-hint">נדרש שם, ולפחות שדה תיאור אחד</span>
+        <div class="dialog-actions">
+          <button type="button" class="button button--ghost" id="cancel-add-dialog">ביטול</button>
+          <button type="submit" class="button button--primary" id="add-submit">
+            <span class="button-label">הוספה לאינדקס</span>
+          </button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="directory-dialog" id="directory-dialog" aria-labelledby="directory-title">
+    <div class="directory-shell">
+      <header class="dialog-head">
+        <div>
+          <h2 id="directory-title">פרופילים באינדקס</h2>
+          <p id="directory-subtitle">כל מי שחיפוש יכול להחזיר כרגע — כולל פרופילים שנוספו בהדגמה.</p>
+        </div>
+        <div class="dialog-head-actions">
+          <button type="button" class="button button--ghost" id="reset-demo" hidden>
+            <span class="button-label">איפוס ההדגמה</span>
+          </button>
+          <button type="button" class="dialog-close" id="close-directory" aria-label="סגירה">×</button>
+        </div>
+      </header>
+      <div class="directory-list" id="directory-list"></div>
+    </div>
+  </dialog>
+
+  <dialog class="person-dialog" id="person-dialog" aria-labelledby="person-dialog-name">
+    <div class="person-card">
+      <header class="dialog-head">
+        <div>
+          <h2 id="person-dialog-name"></h2>
+          <p id="person-dialog-role"></p>
+        </div>
+        <button type="button" class="dialog-close" id="close-person" aria-label="סגירה">×</button>
+      </header>
+      <div id="person-dialog-body"></div>
+      <p class="person-card-note">
+        פרטי הקשר בדיוניים ומיועדים להדגמה בלבד. הם אינם נכללים באינדקס החיפוש —
+        לא מקודדים, לא ניתנים לחיפוש, ומוצגים רק אחרי שההתאמה נמצאה על סמך תוכן הפרופיל.
+      </p>
+    </div>
+  </dialog>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

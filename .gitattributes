@@ -1,0 +1,22 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Two artifacts are hashed as RAW BYTES and must survive checkout unchanged.
+#
+# The encoder directory: every file in it is digested before the model will load.
+# Without -text, the `* text=auto` rule above rewrites tokenizer.json and the JSON
+# configs to CRLF on a Windows clone (core.autocrlf=true is the platform default),
+# the directory digest changes, and the encoder refuses to start with an artifact
+# hash error — on a machine where nothing is actually wrong. It is invisible in the
+# authoring checkout and does not reproduce on macOS or Linux.
+models/bge-m3-int8/** -text
+
+# The vector artifact: ProfileIndex.load() hashes this file's bytes against
+# manifest.json. Git's binary auto-detection already spares it, but the rule is
+# stated rather than inferred, because the failure mode is a startup error that
+# reads like tampering.
+data/artifacts/*.npz -text
+
+# Note: config/*.json and data/*.json are ALSO sealed into the manifest, but those
+# hashes are taken over canonically re-serialised JSON (see maoz_search/artifacts.py),
+# so line-ending conversion cannot affect them. They deliberately need no rule here.

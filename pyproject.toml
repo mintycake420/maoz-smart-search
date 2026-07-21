@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maoz-smart-search-poc"
+version = "0.1.0"
+description = "Offline Hebrew semantic-search proof of concept over synthetic Salesforce-style profiles"
+requires-python = ">=3.11"
+dependencies = [
+  "flask",
+  "numpy",
+  "onnxruntime>=1.26,<1.27",
+  "transformers",
+]
+
+[project.scripts]
+maoz-search = "maoz_search.__main__:main"
+
+[tool.setuptools]
+packages = ["maoz_search"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+maoz_search = ["templates/*.html", "static/*.css", "static/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
